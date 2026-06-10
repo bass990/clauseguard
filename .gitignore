@@ -1,0 +1,71 @@
+# Secrets, never commit real credentials
+.env
+.env.*
+!.env.example
+*.key
+*-credentials.json
+service-account*.json
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+ENV/
+
+# Node, ClauseGuard frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+.vite/
+frontend/dist/
+
+# Jupyter
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# Build artifacts
+build/
+dist/
+
+# Local runtime state
+backend/cache/
+backend/*.db
+backend/*.sqlite
+
+# User uploads from running the app locally
+uploads/
+
+# Sample contract outputs, regenerate locally
+sample_contracts/output/
+
+# OS cruft
+.DS_Store
+__MACOSX/
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build-history scratch files, keep locally, don't commit
+CHANGES_*.md
+CLAUDE_CONTEXT.md
