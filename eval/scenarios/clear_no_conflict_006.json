@@ -1,0 +1,24 @@
+{
+  "id": "clear_no_conflict_006",
+  "tier": "clear_no_conflict",
+  "description": "Termination for cause: both contracts allow termination for material breach with a 30-day cure period, in different phrasing. Not a conflict.",
+  "company_clauses": [
+    {
+      "section": "13 Termination for Cause",
+      "text": "Either party may terminate this Agreement upon written notice if the other party materially breaches this Agreement and fails to cure such breach within thirty (30) days after receipt of written notice from the non-breaching party specifying the breach in reasonable detail.",
+      "party": "company",
+      "canonical_topic": "termination_rights"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "12 Termination",
+      "text": "This Agreement may be terminated by either party upon thirty (30) days' written notice in the event the other party commits a material breach of this Agreement and fails to cure such breach within the thirty (30) day notice period, provided that the notice describes the breach with sufficient specificity to permit cure.",
+      "party": "vendor",
+      "canonical_topic": "termination_rights"
+    }
+  ],
+  "expected_conflicts": [],
+  "expected_total_conflicts": 0,
+  "rubric_notes": "Both: material-breach trigger, 30-day cure period, specificity requirement on the breach notice. The mechanic is identical; the framing differs ('upon written notice' vs 'upon 30-day notice'). Per Rule 2 NO conflict. Neither contract allows termination for convenience, so the topic is uniformly handled."
+}

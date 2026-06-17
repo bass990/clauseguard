@@ -1,0 +1,36 @@
+{
+  "id": "severity_tiering_004",
+  "tier": "severity_tiering",
+  "description": "Insurance coverage minimums: company requires $5M per occurrence + cyber rider; vendor offers $1M per occurrence + no cyber. Insurance is MEDIUM per rubric default, but the gap on cyber coverage in a SaaS context is HIGH-tier in practice.",
+  "company_clauses": [
+    {
+      "section": "12.1 Insurance Requirements",
+      "text": "Vendor shall maintain, at its own expense, the following insurance coverage throughout the term: (a) Commercial General Liability with limits of not less than five million dollars ($5,000,000) per occurrence and ten million dollars ($10,000,000) in the aggregate; (b) Cyber Liability and Data Breach Response insurance with limits of not less than five million dollars ($5,000,000) per occurrence covering data security incidents, regulatory defense, and breach notification costs; (c) Workers' Compensation as required by law. Customer shall be named as an additional insured.",
+      "party": "company",
+      "canonical_topic": "insurance"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "14 Insurance",
+      "text": "Vendor shall maintain Commercial General Liability insurance with limits of not less than one million dollars ($1,000,000) per occurrence and two million dollars ($2,000,000) in the aggregate. Vendor shall provide a certificate of insurance upon request.",
+      "party": "vendor",
+      "canonical_topic": "insurance"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Insurance — coverage and cyber",
+      "acceptable_topics": ["Insurance", "Insurance requirements", "Coverage", "Cyber liability"],
+      "canonical_risk": "HIGH",
+      "acceptable_risks": ["HIGH", "MEDIUM"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "12.1 Insurance Requirements",
+      "gold_vendor_section": "14 Insurance",
+      "notes": "5x coverage gap AND total absence of cyber liability for what is presumably a SaaS/data-services vendor. In a data-handling context, cyber liability is the largest practical risk and its absence elevates the topic beyond the MEDIUM bucket default. HIGH is the right canonical answer; MEDIUM is acceptable for an agent that strictly follows the rubric bucket; LOW or no-flag would be wrong."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Tests the agent's ability to elevate from the rubric's MEDIUM default for insurance when the specific gap (cyber coverage absent + 5x lower base) is material. The reasoning the agent SHOULD show: 'Insurance is MEDIUM by default, but the cyber gap in a data context bumps to HIGH.' Strict MEDIUM is acceptable but shows less senior judgment."
+}

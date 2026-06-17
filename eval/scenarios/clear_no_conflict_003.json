@@ -1,0 +1,24 @@
+{
+  "id": "clear_no_conflict_003",
+  "tier": "clear_no_conflict",
+  "description": "Confidentiality: both contracts impose a 3-year survival period with mutual obligations, in different wording. Stylistic differences over identical substance — not conflicts (Rule 2).",
+  "company_clauses": [
+    {
+      "section": "9.0 Confidentiality",
+      "text": "Each party (the 'Receiving Party') shall hold the other party's Confidential Information in strict confidence and shall not disclose such information to any third party except to its employees and agents with a need to know who are bound by confidentiality obligations no less protective than those set forth herein. These obligations shall survive termination of this Agreement for a period of three (3) years.",
+      "party": "company",
+      "canonical_topic": "confidentiality"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "8 Confidentiality and Non-Disclosure",
+      "text": "Receiving Party agrees to maintain the Confidential Information of Disclosing Party in confidence, to disclose Confidential Information only to its personnel and contractors with a legitimate need to know who are subject to written confidentiality obligations at least as protective as those in this Section, and not to use Confidential Information for any purpose other than the performance of this Agreement. These obligations shall continue for three (3) years after termination of this Agreement.",
+      "party": "vendor",
+      "canonical_topic": "confidentiality"
+    }
+  ],
+  "expected_conflicts": [],
+  "expected_total_conflicts": 0,
+  "rubric_notes": "Both contracts: mutual confidentiality, need-to-know exception with downstream-obligation passthrough, 3-year survival. The vendor's clause adds 'and not to use Confidential Information for any purpose other than performance' explicitly, but this is implicit in the company's clause's 'in strict confidence' language. Stylistic difference; no material conflict. Per Rule 2 NOT a conflict."
+}

@@ -1,0 +1,42 @@
+{
+  "id": "clear_conflict_006",
+  "tier": "clear_conflict",
+  "description": "Payment terms: company contract specifies Net 30 from invoice; vendor contract specifies Net 90 from invoice. The trap is that longer payment windows favor the payer (the company), so canonical_favor is Vendor.",
+  "company_clauses": [
+    {
+      "section": "4.1 Payment Terms",
+      "text": "Customer shall pay all undisputed invoices within thirty (30) days of the invoice date. Amounts not paid when due shall accrue interest at the lesser of one and one-half percent (1.5%) per month or the maximum rate permitted by applicable law.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    },
+    {
+      "section": "4.2 Invoicing",
+      "text": "Vendor shall invoice Customer monthly in arrears for Services performed during the preceding calendar month. Invoices shall include reasonable detail of the Services rendered and any reimbursable expenses.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "7 Payment",
+      "text": "Customer shall pay all invoices in full within ninety (90) days from the date of invoice. Past-due amounts shall accrue interest at one percent (1%) per month or the maximum rate permitted by applicable law, whichever is lower.",
+      "party": "vendor",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Payment terms",
+      "acceptable_topics": ["Payment terms", "Payment", "Net 30", "Net 90", "Payment schedule"],
+      "canonical_risk": "HIGH",
+      "acceptable_risks": ["HIGH"],
+      "canonical_favor": "Vendor",
+      "acceptable_favors": ["Vendor"],
+      "gold_company_section": "4.1 Payment Terms",
+      "gold_vendor_section": "7 Payment",
+      "notes": "Classic payment-window favor trap. The Customer (company) is the PAYER in this agreement. Longer payment windows benefit the payer (better cash flow). Vendor's Net 90 is therefore MORE favorable to the company than the company's own Net 30 standard. canonical_favor=Vendor — the agent should recommend retaining vendor's language. An agent that mechanically picks 'Company' because the company drafted its own clause has missed the substantive analysis."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "The favor field is the senior signal here. payment_terms canonical_risk is HIGH per RUBRIC §2. The Net 30 vs Net 90 gap is materially different (3x cash-flow impact). Most LLM agents trained on contract data will reflexively pick 'Company' as favor because the company drafted its own standard — getting 'Vendor' right requires actually reasoning about who pays whom."
+}

@@ -1,0 +1,42 @@
+{
+  "id": "clear_conflict_007",
+  "tier": "clear_conflict",
+  "description": "Confidentiality survival: company contract requires 5-year survival of confidentiality obligations post-termination; vendor contract limits survival to 1 year.",
+  "company_clauses": [
+    {
+      "section": "9.1 Confidentiality",
+      "text": "Each party (the 'Receiving Party') agrees to hold the Confidential Information of the other party (the 'Disclosing Party') in strict confidence and to use such Confidential Information solely for the purposes of performing its obligations under this Agreement. The Receiving Party shall protect the Disclosing Party's Confidential Information using at least the same degree of care it uses to protect its own confidential information, but in no event less than reasonable care.",
+      "party": "company",
+      "canonical_topic": "confidentiality"
+    },
+    {
+      "section": "9.2 Survival of Confidentiality",
+      "text": "The obligations of confidentiality set forth in Section 9.1 shall survive the termination or expiration of this Agreement for a period of five (5) years, except that obligations with respect to trade secrets shall continue for so long as the information qualifies as a trade secret under applicable law.",
+      "party": "company",
+      "canonical_topic": "confidentiality"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "10 Confidentiality and Non-Disclosure",
+      "text": "Each party agrees to maintain the confidentiality of the other party's Confidential Information disclosed under this Agreement and to use such information solely for the purposes contemplated by this Agreement. These confidentiality obligations shall survive the termination of this Agreement for a period of one (1) year, after which time each party shall be free to use or disclose any such information without restriction.",
+      "party": "vendor",
+      "canonical_topic": "confidentiality"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Confidentiality",
+      "acceptable_topics": ["Confidentiality", "Non-disclosure", "NDA", "Confidentiality survival", "Trade secrets"],
+      "canonical_risk": "HIGH",
+      "acceptable_risks": ["HIGH", "CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "9.2 Survival of Confidentiality",
+      "gold_vendor_section": "10 Confidentiality and Non-Disclosure",
+      "notes": "5-year vs 1-year survival is a material difference, and vendor's clause explicitly says 'each party shall be free to use or disclose any such information without restriction' after year 1 — which conflicts with company's trade-secret carve-out. Company's clause is more protective of the company's IP-adjacent confidential information."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "confidentiality is the shared canonical topic. Risk taxonomy lists confidentiality as HIGH; some interpretations would call survival-of-trade-secret-protection CRITICAL given IP adjacency, so acceptable_risks includes CRITICAL as a defensible secondary answer."
+}

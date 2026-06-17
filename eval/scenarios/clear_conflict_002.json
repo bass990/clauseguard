@@ -1,0 +1,48 @@
+{
+  "id": "clear_conflict_002",
+  "tier": "clear_conflict",
+  "description": "Indemnification scope: company contract provides mutual indemnification; vendor contract provides one-way indemnification by Customer only.",
+  "company_clauses": [
+    {
+      "section": "10.1 Mutual Indemnification",
+      "text": "Each party (the 'Indemnifying Party') shall defend, indemnify, and hold harmless the other party and its affiliates, officers, directors, and employees from and against any and all third-party claims, damages, losses, and expenses (including reasonable attorneys' fees) arising out of or resulting from the Indemnifying Party's breach of this Agreement, gross negligence, or willful misconduct.",
+      "party": "company",
+      "canonical_topic": "indemnification"
+    },
+    {
+      "section": "12.0 Insurance",
+      "text": "Each party shall maintain commercial general liability insurance with limits of not less than one million dollars ($1,000,000) per occurrence and two million dollars ($2,000,000) in the aggregate.",
+      "party": "company",
+      "canonical_topic": "insurance"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "8 Indemnity",
+      "text": "Customer agrees to defend, indemnify, and hold harmless Vendor, its parents, subsidiaries, affiliates, officers, directors, employees, agents, and licensors from and against any and all claims, liabilities, damages, losses, costs, and expenses (including reasonable attorneys' fees) arising from or relating to (a) Customer's use of the Services, (b) Customer's breach of this Agreement, or (c) any third-party claim relating to Customer's data or content. Vendor has no reciprocal indemnification obligation under this Agreement.",
+      "party": "vendor",
+      "canonical_topic": "indemnification"
+    },
+    {
+      "section": "11 Insurance",
+      "text": "Each party shall maintain commercial general liability insurance with limits of not less than one million dollars ($1,000,000) per occurrence.",
+      "party": "vendor",
+      "canonical_topic": "insurance"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Indemnification",
+      "acceptable_topics": ["Indemnification", "Indemnity", "Indemnification scope", "Hold harmless"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "10.1 Mutual Indemnification",
+      "gold_vendor_section": "8 Indemnity",
+      "notes": "Vendor's one-way indemnity puts ALL risk on Customer (the company), including indemnifying vendor for vendor's own service defects via Customer's 'use of the Services' clause. Company's mutual indemnification is dramatically more protective."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Two shared topics: indemnification, insurance. Indemnification differs materially (mutual vs one-way-by-Customer). Insurance is close enough — both $1M occurrence; company adds $2M aggregate as a stricter minimum but vendor's $1M occurrence is not in contradiction (it's just less protective). The rubric MAY flag insurance as a candidate; gold deliberately excludes it as not materially conflicting (vendor's standard is the floor, company's standard is the ceiling — neither contradicts the other)."
+}

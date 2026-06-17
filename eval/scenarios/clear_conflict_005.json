@@ -1,0 +1,42 @@
+{
+  "id": "clear_conflict_005",
+  "tier": "clear_conflict",
+  "description": "Governing law mismatch: company contract specifies Delaware; vendor contract specifies California with exclusive venue in San Francisco County.",
+  "company_clauses": [
+    {
+      "section": "15.1 Governing Law",
+      "text": "This Agreement and all matters arising out of or relating to this Agreement shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to its conflict of laws provisions.",
+      "party": "company",
+      "canonical_topic": "governing_law"
+    },
+    {
+      "section": "15.2 Venue",
+      "text": "Any action arising out of or relating to this Agreement shall be brought exclusively in the state or federal courts located in New Castle County, Delaware, and the parties consent to the personal jurisdiction of such courts.",
+      "party": "company",
+      "canonical_topic": "governing_law"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "17 Choice of Law and Venue",
+      "text": "This Agreement shall be governed by, and construed in accordance with, the laws of the State of California, without giving effect to any choice or conflict of law provision. Any dispute arising out of or relating to this Agreement shall be brought exclusively in the state or federal courts located in San Francisco County, California, and each party hereby submits to the exclusive jurisdiction of such courts.",
+      "party": "vendor",
+      "canonical_topic": "governing_law"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Governing law",
+      "acceptable_topics": ["Governing law", "Choice of law", "Applicable law", "Jurisdiction", "Venue"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "15.1 Governing Law",
+      "gold_vendor_section": "17 Choice of Law and Venue",
+      "notes": "Delaware vs California is a material conflict — different bodies of contract law (Delaware is more developed and predictable for commercial agreements), and the venue clauses force opposite coasts. The agent may flag this as one or two conflicts; flagging once as governing_law is the canonical answer."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Both sides cover governing_law (the venue clauses are subsumed under the same canonical topic per RUBRIC §3). Two contradicting jurisdictions cannot both be the governing law — one clause must give. The agent might split into governing-law + venue as two conflicts; either is defensible but the canonical structure is one conflict."
+}

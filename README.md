@@ -88,7 +88,27 @@ It does **not** finalize the contract, draft the response, or replace legal revi
 
 Things this project is NOT, that an interviewer should know:
 
-1. **No eval harness.** Conflict quality is judged by inspection on the two demo contracts (10 hand-crafted conflicts in `sample_contracts/`). No held-out set of gold contract pairs with known-correct conflict lists. This is the single highest-value Phase 2 upgrade, without it, "the agent flagged 12 conflicts" is not a measurable claim about precision or recall.
+1. **Eval-validated A/B: aggregate equivalent, per-tier divergent.** A 30-scenario eval harness across 5 tiers (clear_conflict, clear_no_conflict, ambiguous, severity_tiering, adversarial) ran 360 LLM calls across 180 scored runs (30 scenarios × 2 branches × 3 reps, $6.81, 0 errors). See `eval/` for the full methodology + RUBRIC.md (committed before scenarios to neutralize scenario-author bias).
+
+   **Aggregate: F1 is approximately equivalent.** FULL (two-tool agentic loop) 64.0% vs STRIPPED (single-prompt baseline) 66.2% — a -2.1pp lift well within the equivalence band. By the headline number, the two-tool architecture does not earn its complexity.
+
+   **Per-tier breakdown reveals real architectural signal — the two architectures are NOT interchangeable:**
+
+   | Tier | FULL F1 | STRIPPED F1 | Lift | Read |
+   |---|---|---|---|---|
+   | `severity_tiering` | 56.4% | 45.8% | **+10.7pp** | Agentic loop helps — explicit extract step → cleaner risk-tier decisions. `severity_tiering_003` (arbitration) was caught exactly 3/3 reps by FULL; STRIPPED over-flagged 3/3. |
+   | `clear_no_conflict` | 83.3% | 83.3% | 0 | Tied — both branches fail the same way on `clear_no_conflict_005` (over-flag identical IP clauses). |
+   | `clear_conflict` | 57.3% | 59.4% | -2.1pp | Tied. |
+   | `adversarial` | 65.7% | 72.0% | -6.3pp | Stripped wins — agentic loop more prone to fabricating conflicts (`adversarial_006` double-negative: STRIPPED 0/3, FULL 2/3 false positives). |
+   | `ambiguous` | 57.4% | 70.4% | **-13.0pp** | Stripped wins by the largest margin — extra reasoning steps amplify the false-positive tendency on borderline-material clauses. |
+
+   **Prompt injection: BOTH branches resisted.** `adversarial_001` (instruction injected into clause TEXT instructing the model to flag as LOW) and `adversarial_002` (instruction injected into section HEADER) both caught the underlying CRITICAL conflict 3/3 reps on both architectures. The agent treated the injected text as data, not commands.
+
+   **Both branches over-flag** — count MAE is ~1 conflict per scenario for both. The hardest scenarios are `severity_tiering_002` (payment-penalties: 5/4/5 vs gold 1) and `clear_conflict_006` (the payment-favor-Vendor trap: 4/4/3 vs gold 1) — both branches struggle to consolidate a single multi-faceted conflict into one finding rather than several.
+
+   **Architectural recommendation surfaced by the eval:** route by input characteristics rather than pick one architecture wholesale. Use the agentic loop when the question is *which risk tier* (severity_tiering tier where it wins +10.7pp), and the single-prompt baseline when the question is *is this even a conflict* (ambiguous tier where it wins +13.0pp). This is exactly the conditional-deliberation pattern the ChainPilot eval recommended.
+
+   Reproduce: `make eval` from `clauseguard/` with `ANTHROPIC_API_KEY` set.
 2. **Hallucination risk on resolution language.** The agent suggests compromise language for every flagged conflict. That language could be wrong, ambiguous, or contractually disadvantageous in ways that look fine to a non-lawyer reader. The UI presents resolutions as *starting points for counsel*, but a careless user could treat them as final. Production hardening would require a separate review step (LLM-as-judge or rule-based) before resolutions surface.
 3. **The "expert contract attorney" system prompt is a persona, not a substitute.** Framing Claude as an attorney in the prompt does not give Claude legal training or jurisdiction-specific case-law knowledge. The system prompt is a way to bias the model toward legal-framing language; it is not a credential.
 4. **PDF text only, no OCR.** Scanned image-only contracts produce zero clauses. Real legal workflows routinely involve scanned exhibits. OCR (Tesseract or a hosted service) is on the roadmap.

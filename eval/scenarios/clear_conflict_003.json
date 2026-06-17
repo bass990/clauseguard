@@ -1,0 +1,42 @@
+{
+  "id": "clear_conflict_003",
+  "tier": "clear_conflict",
+  "description": "IP ownership of work product: company contract assigns all work product to Customer; vendor contract retains all IP in Vendor with a Customer license.",
+  "company_clauses": [
+    {
+      "section": "6.1 Ownership of Work Product",
+      "text": "All deliverables, work product, deliverables, code, documentation, designs, and any other materials created by Vendor in the performance of this Agreement (collectively, 'Work Product') shall be the sole and exclusive property of Customer. Vendor hereby irrevocably assigns to Customer all right, title, and interest in and to the Work Product, including all intellectual property rights therein. Vendor agrees to execute any documents necessary to perfect Customer's ownership.",
+      "party": "company",
+      "canonical_topic": "ip_ownership"
+    },
+    {
+      "section": "6.2 Pre-Existing IP",
+      "text": "Each party retains ownership of its pre-existing intellectual property. To the extent Vendor incorporates any pre-existing Vendor IP into the Work Product, Vendor grants Customer a perpetual, worldwide, non-exclusive, royalty-free license to use such pre-existing IP solely as part of the Work Product.",
+      "party": "company",
+      "canonical_topic": "ip_ownership"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "5 Intellectual Property",
+      "text": "All intellectual property rights in and to the Services, deliverables, software, documentation, methodologies, templates, frameworks, and any derivative works thereof (collectively, the 'Vendor IP') shall remain the sole and exclusive property of Vendor. Subject to Customer's payment of all fees, Vendor grants Customer a limited, non-exclusive, non-transferable license to use the Vendor IP solely for Customer's internal business purposes during the term of this Agreement. Upon termination, all rights granted to Customer terminate immediately.",
+      "party": "vendor",
+      "canonical_topic": "ip_ownership"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "IP ownership",
+      "acceptable_topics": ["IP ownership", "Intellectual property", "Ownership of work product", "Work product", "IP assignment", "IP rights"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "6.1 Ownership of Work Product",
+      "gold_vendor_section": "5 Intellectual Property",
+      "notes": "Direct contradiction on the central IP question: who owns deliverables. Company says Customer owns outright with assignment. Vendor says Vendor owns and Customer gets only a license that terminates with the agreement. This is the single most consequential clause in most B2B services agreements."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "ip_ownership is the only shared topic; both sides have IP clauses but they contradict on ownership. Company's section 6.2 covers pre-existing IP — same topic but different angle — and is consistent with Vendor's overall position on pre-existing IP. Only the ownership-of-work-product question is a conflict; flag once even though company has two IP clauses."
+}

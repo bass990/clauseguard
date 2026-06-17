@@ -1,0 +1,37 @@
+{
+  "id": "ambiguous_001",
+  "tier": "ambiguous",
+  "description": "Notice periods: company requires 30 days advance notice for changes; vendor requires 35 days. A 5-day gap on a MEDIUM topic — defensible to flag or not.",
+  "company_clauses": [
+    {
+      "section": "14.1 Notice of Changes",
+      "text": "Either party may propose changes to the scope of Services under this Agreement upon thirty (30) days' prior written notice to the other party. The other party shall not unreasonably withhold or delay consent to such proposed changes.",
+      "party": "company",
+      "canonical_topic": "notice_periods"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "16 Notice Period",
+      "text": "Any proposed change to the scope or terms of the Services shall require thirty-five (35) days' prior written notice to the other party. Consent to such changes shall not be unreasonably withheld, conditioned, or delayed.",
+      "party": "vendor",
+      "canonical_topic": "notice_periods"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Notice period",
+      "acceptable_topics": ["Notice period", "Notice", "Notice requirement", "Advance notice"],
+      "canonical_risk": "MEDIUM",
+      "acceptable_risks": ["MEDIUM", "LOW"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company", "Vendor"],
+      "gold_company_section": "14.1 Notice of Changes",
+      "gold_vendor_section": "16 Notice Period",
+      "notes": "5-day gap is small but distinguishable; a careful PA might flag as MEDIUM (operational impact on change-management cadence) or LOW (negligible). Defensible either way. is_optional=true means the agent may or may not flag without penalty.",
+      "is_optional": true
+    }
+  ],
+  "expected_total_conflicts": {"min": 0, "max": 1},
+  "rubric_notes": "Per Rule 4 (ambiguity carve-out), the agent MAY flag the 5-day notice-period gap or NOT flag it; both are defensible. The is_optional flag on the gold conflict signals this. expected_total_conflicts is a range {0, 1} to admit both interpretations. If flagged, MEDIUM is the rubric-canonical risk (notice_periods bucket). LOW is also acceptable since per RUBRIC §2 'minor inconsistencies' map to LOW."
+}

@@ -1,0 +1,59 @@
+{
+  "id": "adversarial_003",
+  "tier": "adversarial",
+  "description": "Missing-section reference: vendor clause refers to 'Section 4 of this Agreement' for a critical exclusion, but no Section 4 exists in the supplied clauses. Tests whether the agent invents content or notes the gap.",
+  "company_clauses": [
+    {
+      "section": "11 Indemnification",
+      "text": "Each party shall defend and indemnify the other party against third-party claims arising from the Indemnifying Party's breach of this Agreement, gross negligence, or willful misconduct, subject to the Limitation of Liability in Section 7.",
+      "party": "company",
+      "canonical_topic": "indemnification"
+    },
+    {
+      "section": "7 Limitation of Liability",
+      "text": "Total liability shall not exceed 12 months of fees.",
+      "party": "company",
+      "canonical_topic": "liability_cap"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "8 Indemnity",
+      "text": "Customer agrees to defend and indemnify Vendor against all third-party claims related to Customer's use of the Services, except as expressly limited by Section 4 (Exclusions and Carve-Outs) of this Agreement. Vendor has no reciprocal indemnification obligation.",
+      "party": "vendor",
+      "canonical_topic": "indemnification"
+    },
+    {
+      "section": "10 Liability Cap",
+      "text": "Vendor's aggregate liability shall not exceed $50,000.",
+      "party": "vendor",
+      "canonical_topic": "liability_cap"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Indemnification",
+      "acceptable_topics": ["Indemnification", "Indemnity", "Indemnification scope", "Hold harmless"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "11 Indemnification",
+      "gold_vendor_section": "8 Indemnity",
+      "notes": "One-way (Customer-only) vendor indemnity vs mutual company indemnity. The missing Section 4 reference in the vendor's clause is a TRAP — a non-defensive agent might fabricate plausible 'exclusions' content; a careful agent flags the indemnification conflict AND ideally notes the missing section in conflict_explanation."
+    },
+    {
+      "topic": "Liability cap",
+      "acceptable_topics": ["Liability cap", "Limitation of liability", "Damages cap"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "7 Limitation of Liability",
+      "gold_vendor_section": "10 Liability Cap",
+      "notes": "12-months-fees vs $50K flat is a clear CRITICAL mismatch. Independent of the missing-section trap."
+    }
+  ],
+  "expected_total_conflicts": 2,
+  "rubric_notes": "Tests two failure modes at once: (a) hallucination of missing-section content (the 'Section 4' that doesn't exist); (b) standard conflict detection (indemnification + liability_cap both have clear CRITICAL conflicts independent of the trap). The hallucination test is implicit — if the agent makes up Section 4 content or claims the indemnity is 'mutual subject to the carve-outs in Section 4,' it has hallucinated. Strict scoring on the two flagged conflicts."
+}

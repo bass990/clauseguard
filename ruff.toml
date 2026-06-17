@@ -1,0 +1,15 @@
+target-version = "py310"
+line-length = 100
+
+[lint]
+# Match the existing repo style (compact, project-not-package-shaped).
+# Ignore line-length and a few formatting nits; the codebase already has them.
+ignore = [
+    "E501",  # line too long
+    "E701",  # multiple statements on one line (colon)
+    "E702",  # multiple statements on one line (semicolon)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["E402"]  # late imports inside test functions are intentional
+"eval/prompts.py" = ["E501"]  # prompt text wraps naturally past 100 chars

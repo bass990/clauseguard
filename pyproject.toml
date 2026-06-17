@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clauseguard"
+version = "0.2.0"
+description = "Two-tool agentic contract conflict detector with eval harness."
+requires-python = ">=3.10"
+authors = [{ name = "Mamadou Diallo" }]
+license = { text = "MIT" }
+readme = "README.md"
+dependencies = [
+    "anthropic>=0.40.0",
+    "pymupdf>=1.24.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-dotenv>=1.0.0",
+    "python-multipart>=0.0.9",
+    "reportlab>=4.0.0",
+    "pydantic>=2.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["backend*", "eval*"]
+exclude = ["tests*", "uploads*", "node_modules*", "sample_contracts*", "frontend*"]

@@ -1,0 +1,36 @@
+{
+  "id": "severity_tiering_001",
+  "tier": "severity_tiering",
+  "description": "Subcontracting tier-bumping test: vendor's subcontracting clause materially shifts liability exposure by allowing unlimited subcontracting without consent, which converts the topic from MEDIUM (rubric default) into CRITICAL-adjacent risk in practice.",
+  "company_clauses": [
+    {
+      "section": "8.0 Subcontracting",
+      "text": "Vendor shall not subcontract or delegate any of its obligations under this Agreement to a third party without the prior written consent of Customer. Vendor shall remain fully liable for any acts or omissions of any approved subcontractor as if such acts or omissions were Vendor's own.",
+      "party": "company",
+      "canonical_topic": "subcontracting"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "11 Subcontractors and Personnel",
+      "text": "Vendor reserves the right to engage subcontractors, contingent labor, or affiliated entities to perform any portion of the Services without notice to or consent from Customer. Vendor's liability for the acts or omissions of any subcontractor shall be limited to the lesser of direct damages or the fees attributable to the affected portion of the Services. Customer's sole remedy against any subcontractor shall be against Vendor.",
+      "party": "vendor",
+      "canonical_topic": "subcontracting"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Subcontracting",
+      "acceptable_topics": ["Subcontracting", "Subcontractors", "Delegation"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL", "HIGH"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "8.0 Subcontracting",
+      "gold_vendor_section": "11 Subcontractors and Personnel",
+      "notes": "subcontracting is MEDIUM-default in the rubric, but vendor's clause has TWO tier-bumping moves: (a) no notice or consent (eliminates Customer's vetting); (b) limits Vendor's liability for subcontractor acts to direct damages — which interacts with any liability cap to create a compounded exposure. The combination converts a MEDIUM topic into CRITICAL practical risk."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Tests whether the agent reasons about WHY a topic's risk tier might shift higher than the bucket default. The agent that mechanically pulls 'MEDIUM' from the rubric is missing the senior signal. CRITICAL is the right call because the liability interaction is the load-bearing piece, not the subcontracting permission itself. acceptable_risks=[CRITICAL,HIGH] admits HIGH for an agent that recognizes the elevated risk without going to CRITICAL."
+}

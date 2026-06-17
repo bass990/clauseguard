@@ -1,0 +1,24 @@
+{
+  "id": "clear_no_conflict_005",
+  "tier": "clear_no_conflict",
+  "description": "IP ownership: both contracts assign all work product to the Customer, in different wording. Materially identical assignment — not a conflict (Rule 2).",
+  "company_clauses": [
+    {
+      "section": "6 Ownership of Work Product",
+      "text": "All deliverables, work product, and materials created by Vendor in the performance of this Agreement shall be the sole and exclusive property of Customer. Vendor hereby irrevocably assigns to Customer all right, title, and interest in and to such work product, including all intellectual property rights therein.",
+      "party": "company",
+      "canonical_topic": "ip_ownership"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "5 Intellectual Property in Deliverables",
+      "text": "Subject to Vendor's pre-existing IP rights, all deliverables produced by Vendor specifically for Customer under this Agreement (the 'Custom Deliverables') shall be owned by Customer upon Customer's payment of all applicable fees, and Vendor hereby assigns to Customer all right, title, and interest in and to the Custom Deliverables, including any associated intellectual property rights.",
+      "party": "vendor",
+      "canonical_topic": "ip_ownership"
+    }
+  ],
+  "expected_conflicts": [],
+  "expected_total_conflicts": 0,
+  "rubric_notes": "Both contracts: deliverables/work product assigned to Customer with all IP. Vendor's clause adds a payment condition ('upon Customer's payment of all applicable fees') and carves out pre-existing IP — both of which are standard and not contradictory to company's clause (company's clause implies Vendor is paid; pre-existing IP is a separate question from new-work IP). Per Rule 2 NO conflict on the central ownership question. A nervous agent might flag this — that's the failure mode being tested."
+}

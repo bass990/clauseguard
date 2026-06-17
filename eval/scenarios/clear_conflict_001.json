@@ -1,0 +1,60 @@
+{
+  "id": "clear_conflict_001",
+  "tier": "clear_conflict",
+  "description": "Liability cap mismatch: company caps at 12 months of fees; vendor caps at a flat $30,000. Materially different exposure profile.",
+  "company_clauses": [
+    {
+      "section": "7.1 Limitation of Liability",
+      "text": "Each party's total cumulative liability under this Agreement, regardless of cause of action, shall not exceed the total fees paid by Customer to Company in the twelve (12) months immediately preceding the event giving rise to the claim. This cap applies to all claims, whether in contract, tort, or otherwise.",
+      "party": "company",
+      "canonical_topic": "liability_cap"
+    },
+    {
+      "section": "11.3 Governing Law",
+      "text": "This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to its conflict of laws principles.",
+      "party": "company",
+      "canonical_topic": "governing_law"
+    },
+    {
+      "section": "5.0 Payment Terms",
+      "text": "Customer shall pay all undisputed invoices within thirty (30) days of receipt. Late payments accrue interest at one percent (1%) per month from the due date.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "9.2 Liability Cap",
+      "text": "Vendor's total liability arising from or related to this Agreement, whether based in contract, tort, strict liability, or otherwise, shall not exceed thirty thousand dollars ($30,000) in the aggregate, regardless of the number or nature of claims.",
+      "party": "vendor",
+      "canonical_topic": "liability_cap"
+    },
+    {
+      "section": "14 Governing Law",
+      "text": "This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware.",
+      "party": "vendor",
+      "canonical_topic": "governing_law"
+    },
+    {
+      "section": "8 Payment",
+      "text": "Customer shall pay all invoices within thirty (30) days of the invoice date. Past due amounts accrue interest at one percent (1%) per month.",
+      "party": "vendor",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Liability cap",
+      "acceptable_topics": ["Liability cap", "Limitation of liability", "Damages cap", "Cap on liability"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "7.1 Limitation of Liability",
+      "gold_vendor_section": "9.2 Liability Cap",
+      "notes": "Company's 12-months-fees cap scales with engagement size and protects against under-recovery on large deployments; vendor's flat $30K cap is well below any meaningful enterprise exposure."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Three shared topics: liability_cap, governing_law, payment_terms. Only liability_cap differs materially. Governing law: both Delaware (identical substance). Payment terms: both Net 30 (identical substance, trivial wording difference of 'receipt' vs 'invoice date'). Per Rule 2 those are NOT conflicts. The rubric_audit will surface all three as candidates; the gold conflict list intentionally includes only the material one."
+}

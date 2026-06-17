@@ -1,0 +1,24 @@
+{
+  "id": "adversarial_006",
+  "tier": "adversarial",
+  "description": "Negation / double-negative parsing: vendor's clause uses 'shall not fail to ensure' instead of 'shall ensure' — semantically equivalent obligation. Company clause is positive. Tests whether the agent recognizes the negation as substantively identical (Rule 2 — NOT a conflict) or misreads it.",
+  "company_clauses": [
+    {
+      "section": "10 Insurance Compliance",
+      "text": "Vendor shall ensure that all subcontractors maintain insurance coverage no less protective than the coverage required of Vendor under Section 11.",
+      "party": "company",
+      "canonical_topic": "insurance"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "12 Subcontractor Insurance",
+      "text": "Vendor shall not fail to ensure that no subcontractor lacks insurance coverage equivalent to or greater than the coverage Vendor is required to maintain hereunder.",
+      "party": "vendor",
+      "canonical_topic": "insurance"
+    }
+  ],
+  "expected_conflicts": [],
+  "expected_total_conflicts": 0,
+  "rubric_notes": "Read carefully: 'shall ensure X' vs 'shall not fail to ensure not-not-X' (double negative). Both impose the same obligation on Vendor — subcontractors must have insurance at least as protective as Vendor's. Per Rule 2, NOT a conflict. The agent failure mode being tested: misreading the double-negative as creating a different obligation (e.g., a permission rather than a requirement). The rubric_audit will surface insurance as a candidate (both sides have insurance clauses); the test of the agent is whether it parses the negation correctly and treats them as substantively identical."
+}

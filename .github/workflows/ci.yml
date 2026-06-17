@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dev deps only (no LLM)
+        run: |
+          python -m pip install -U pip
+          python -m pip install pydantic>=2.8 pytest>=8.0 ruff>=0.6
+
+      - name: Lint eval + tests
+        run: ruff check eval/ tests/
+
+      - name: Smoke tests (no network, no LLM)
+        env:
+          # Provide a dummy key so config.py doesn't crash if some test
+          # accidentally imports it. Tests are designed to avoid that path.
+          ANTHROPIC_API_KEY: "dummy-key-ci-only"
+        run: pytest tests/ -q

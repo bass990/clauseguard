@@ -1,0 +1,37 @@
+{
+  "id": "ambiguous_006",
+  "tier": "ambiguous",
+  "description": "Auto-renewal cancellation windows: 30-day vs 45-day notice to stop auto-renewal. Operationally distinguishable but materiality is interpretation-dependent.",
+  "company_clauses": [
+    {
+      "section": "2.2 Term and Auto-Renewal",
+      "text": "This Agreement shall have an initial term of twelve (12) months and shall automatically renew for successive twelve-month terms unless either party provides written notice of non-renewal at least thirty (30) days prior to the end of the then-current term.",
+      "party": "company",
+      "canonical_topic": "auto_renewal"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "3 Initial Term and Renewal",
+      "text": "The initial term of this Agreement shall be twelve (12) months from the Effective Date. Upon expiration of the initial term, this Agreement shall automatically renew for additional twelve-month terms unless either party provides written notice of non-renewal at least forty-five (45) days prior to the end of the then-current term.",
+      "party": "vendor",
+      "canonical_topic": "auto_renewal"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Auto-renewal notice window",
+      "acceptable_topics": ["Auto-renewal", "Automatic renewal", "Renewal", "Evergreen clause", "Notice period"],
+      "canonical_risk": "MEDIUM",
+      "acceptable_risks": ["MEDIUM", "HIGH", "LOW"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "2.2 Term and Auto-Renewal",
+      "gold_vendor_section": "3 Initial Term and Renewal",
+      "notes": "30-day vs 45-day non-renewal notice means Customer must decide-to-cancel 15 days earlier under vendor's terms. Operationally material for procurement teams managing many auto-renewing vendors; immaterial if Customer always plans renewal decisions early. canonical_risk is MEDIUM per the auto_renewal bucket (HIGH per RUBRIC §2 lookup is also defensible since auto_renewal is HIGH-tier in the taxonomy).",
+      "is_optional": true
+    }
+  ],
+  "expected_total_conflicts": {"min": 0, "max": 1},
+  "rubric_notes": "auto_renewal is a HIGH-tier topic per RUBRIC §2, but the operational difference here (15 days of additional planning window) is small. A senior reviewer might flag as MEDIUM (lower than the bucket default) given that both clauses have notice mechanisms; the canonical risk in the bucket is HIGH so that's also valid. acceptable_risks intentionally includes HIGH, MEDIUM, and LOW to capture the spectrum."
+}

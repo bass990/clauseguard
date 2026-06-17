@@ -1,0 +1,36 @@
+{
+  "id": "severity_tiering_003",
+  "tier": "severity_tiering",
+  "description": "Arbitration vs litigation: company prefers court litigation in Delaware; vendor mandates binding arbitration with AAA in San Francisco. Same canonical topic (arbitration/dispute_resolution); the agent must hold CRITICAL.",
+  "company_clauses": [
+    {
+      "section": "16.1 Dispute Resolution",
+      "text": "Any disputes arising out of or relating to this Agreement shall be resolved by litigation in the state or federal courts located in New Castle County, Delaware. Each party expressly waives any right to a jury trial.",
+      "party": "company",
+      "canonical_topic": "arbitration"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "19 Dispute Resolution; Mandatory Arbitration",
+      "text": "Any dispute arising out of or relating to this Agreement shall be resolved exclusively by final and binding arbitration administered by the American Arbitration Association under its Commercial Arbitration Rules. The arbitration shall be conducted in San Francisco, California, by a single arbitrator, and the parties waive any right to trial by court or jury. Class arbitration is expressly prohibited.",
+      "party": "vendor",
+      "canonical_topic": "arbitration"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Dispute resolution: arbitration vs litigation",
+      "acceptable_topics": ["Arbitration", "Dispute resolution", "Binding arbitration", "Arbitration clause"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company", "Vendor"],
+      "gold_company_section": "16.1 Dispute Resolution",
+      "gold_vendor_section": "19 Dispute Resolution; Mandatory Arbitration",
+      "notes": "Arbitration is a CRITICAL-tier topic per rubric §2. The forum (Delaware courts vs SF AAA) AND the procedural mechanism (litigation vs binding arbitration with class-arb waiver) are both materially different. Some agents might pull 'HIGH' because the cap is HIGH for many dispute provisions; that's wrong per the rubric. acceptable_risks=[CRITICAL] only — the test is whether the agent holds the CRITICAL tier."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Pure-tier test: per rubric §2 arbitration is CRITICAL. acceptable_favors includes both because reasonable practitioners disagree on whether litigation or arbitration favors Customer — depends on volume, sophistication, and counterparty. The risk-tier is what's being tested here."
+}

@@ -1,0 +1,37 @@
+{
+  "id": "ambiguous_005",
+  "tier": "ambiguous",
+  "description": "Assignment: company allows assignment to affiliates without consent on notice; vendor requires written consent for any assignment but with 'not unreasonably withheld' language. Gray area on what counts as material restriction.",
+  "company_clauses": [
+    {
+      "section": "17.1 Assignment",
+      "text": "Neither party may assign this Agreement or any rights hereunder without the prior written consent of the other party, except that either party may assign this Agreement to an affiliate or to a successor in connection with a merger, acquisition, or sale of all or substantially all of its assets upon written notice to the other party.",
+      "party": "company",
+      "canonical_topic": "assignment"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "18 Assignment and Delegation",
+      "text": "Neither party may assign or transfer this Agreement, in whole or in part, without the prior written consent of the other party, which consent shall not be unreasonably withheld, conditioned, or delayed. Any purported assignment in violation of this Section shall be void.",
+      "party": "vendor",
+      "canonical_topic": "assignment"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Assignment",
+      "acceptable_topics": ["Assignment", "Assignability", "Transfer of agreement"],
+      "canonical_risk": "MEDIUM",
+      "acceptable_risks": ["MEDIUM", "LOW"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company", "Vendor"],
+      "gold_company_section": "17.1 Assignment",
+      "gold_vendor_section": "18 Assignment and Delegation",
+      "notes": "Company's clause CARVES OUT affiliate-and-M&A assignment from the consent requirement; vendor's clause requires consent for ALL assignments but qualifies it with 'not unreasonably withheld.' For Customer's organizational flexibility (typical M&A planning), company's clause is materially better. A careful reviewer may flag this as MEDIUM; a permissive reviewer may consider 'not unreasonably withheld' close enough to skip.",
+      "is_optional": true
+    }
+  ],
+  "expected_total_conflicts": {"min": 0, "max": 1},
+  "rubric_notes": "The substantive question is whether 'not unreasonably withheld' approximates a carve-out for the standard corporate-flexibility cases (affiliate transfers, M&A successor). Reasonable lawyers disagree — many M&A practitioners insist on the explicit carve-out; many vendor counsels argue the standard is functionally equivalent. is_optional=true admits both interpretations."
+}

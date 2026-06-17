@@ -1,0 +1,24 @@
+{
+  "id": "clear_no_conflict_004",
+  "tier": "clear_no_conflict",
+  "description": "Governing law: both contracts specify New York with venue in New York County, in different formal wording. Substantive identity — not a conflict.",
+  "company_clauses": [
+    {
+      "section": "16.1 Governing Law and Venue",
+      "text": "This Agreement shall be governed by and construed in accordance with the laws of the State of New York, without regard to its conflict of laws principles. The parties consent to the exclusive jurisdiction and venue of the state and federal courts located in New York County, New York for any disputes arising hereunder.",
+      "party": "company",
+      "canonical_topic": "governing_law"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "19 Choice of Law",
+      "text": "The laws of the State of New York shall govern this Agreement, excluding conflict of laws provisions. Any disputes arising out of or relating to this Agreement shall be brought exclusively in the courts located in the County of New York, State of New York, and each party submits to the jurisdiction of such courts.",
+      "party": "vendor",
+      "canonical_topic": "governing_law"
+    }
+  ],
+  "expected_conflicts": [],
+  "expected_total_conflicts": 0,
+  "rubric_notes": "Both: New York law, exclusive NY County venue, conflict-of-laws exclusion. Wording differs ('shall be governed by' vs 'shall govern this Agreement') but the substantive choice is identical. Per Rule 2 NO conflict. The rubric_audit will surface governing_law as a candidate; the test of the agent is whether it recognizes substantive identity."
+}

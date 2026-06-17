@@ -1,0 +1,36 @@
+{
+  "id": "clear_no_conflict_001",
+  "tier": "clear_no_conflict",
+  "description": "Payment terms: both contracts specify Net 30 in different wording. Per Rule 2, stylistic differences over identical substance are NOT conflicts.",
+  "company_clauses": [
+    {
+      "section": "5 Payment Terms",
+      "text": "Customer shall pay all undisputed invoices within thirty (30) days of receipt of invoice. Late payments shall accrue interest at one percent (1%) per month from the due date until paid.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    },
+    {
+      "section": "5.1 Disputed Amounts",
+      "text": "If Customer in good faith disputes any portion of an invoice, Customer shall pay the undisputed portion in accordance with Section 5 and notify Vendor of the disputed portion within fifteen (15) days of receipt of the invoice.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "7 Invoicing and Payment",
+      "text": "Payment of each invoice is due net thirty (30) days from the date Customer receives such invoice. Past due balances accrue interest at the rate of one percent (1%) per month, calculated from the due date.",
+      "party": "vendor",
+      "canonical_topic": "payment_terms"
+    },
+    {
+      "section": "7.1 Dispute Procedure",
+      "text": "If Customer disputes any amount on an invoice in good faith, Customer shall promptly notify Vendor in writing within fifteen (15) days of receiving the invoice and shall timely pay all undisputed amounts.",
+      "party": "vendor",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "expected_conflicts": [],
+  "expected_total_conflicts": 0,
+  "rubric_notes": "Both contracts: Net 30, 1%/month late interest, 15-day dispute notification. Wording differs ('thirty (30) days of receipt of invoice' vs 'net thirty (30) days from the date Customer receives such invoice'), but the substantive obligations are identical. Per Rule 2 NO conflict exists. The rubric_audit will surface payment_terms as a candidate (both sides have the topic); the scenario asserts that Rule 2 applies and the candidate should NOT be flagged."
+}

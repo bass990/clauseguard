@@ -1,0 +1,144 @@
+{
+  "id": "adversarial_004",
+  "tier": "adversarial",
+  "description": "Long-context attention test: 10 clauses per side with the single CRITICAL conflict buried at position 8. Tests whether the agent attends to clauses in the back half of the list or 'forgets' them.",
+  "company_clauses": [
+    {
+      "section": "1 Definitions",
+      "text": "Capitalized terms used herein and not otherwise defined shall have the meanings ascribed to them in the Statement of Work attached as Exhibit A.",
+      "party": "company",
+      "canonical_topic": "amendments"
+    },
+    {
+      "section": "2 Effective Date",
+      "text": "This Agreement is effective as of the date last signed below (the 'Effective Date').",
+      "party": "company",
+      "canonical_topic": "amendments"
+    },
+    {
+      "section": "3 Services",
+      "text": "Vendor shall provide the Services described in each Statement of Work executed by the parties from time to time.",
+      "party": "company",
+      "canonical_topic": "amendments"
+    },
+    {
+      "section": "4 Term",
+      "text": "The initial term of this Agreement shall be twenty-four (24) months from the Effective Date, with renewals on terms mutually agreed.",
+      "party": "company",
+      "canonical_topic": "auto_renewal"
+    },
+    {
+      "section": "5 Fees",
+      "text": "Customer shall pay the fees set forth in each Statement of Work.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    },
+    {
+      "section": "6 Notices",
+      "text": "All notices under this Agreement shall be in writing and delivered to the addresses set forth on the signature page.",
+      "party": "company",
+      "canonical_topic": "notice_periods"
+    },
+    {
+      "section": "7 Confidentiality",
+      "text": "Each party shall hold the other party's Confidential Information in confidence for three (3) years following termination.",
+      "party": "company",
+      "canonical_topic": "confidentiality"
+    },
+    {
+      "section": "8 Indemnification",
+      "text": "Each party shall mutually defend and indemnify the other party against third-party claims arising from the Indemnifying Party's breach, gross negligence, or willful misconduct.",
+      "party": "company",
+      "canonical_topic": "indemnification"
+    },
+    {
+      "section": "9 Force Majeure",
+      "text": "Neither party shall be liable for failure or delay caused by events beyond its reasonable control.",
+      "party": "company",
+      "canonical_topic": "force_majeure"
+    },
+    {
+      "section": "10 Severability",
+      "text": "If any provision of this Agreement is held invalid or unenforceable, the remaining provisions shall continue in full force and effect.",
+      "party": "company",
+      "canonical_topic": "amendments"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "1 Definitions",
+      "text": "Capitalized terms not otherwise defined shall have the meanings assigned in the applicable Order Form.",
+      "party": "vendor",
+      "canonical_topic": "amendments"
+    },
+    {
+      "section": "2 Term Commencement",
+      "text": "This Agreement commences on the Effective Date and continues per Section 4.",
+      "party": "vendor",
+      "canonical_topic": "amendments"
+    },
+    {
+      "section": "3 Scope of Services",
+      "text": "Vendor will provide the Services as described in the applicable Order Form.",
+      "party": "vendor",
+      "canonical_topic": "amendments"
+    },
+    {
+      "section": "4 Initial Term",
+      "text": "The initial term shall be twenty-four (24) months, renewable on terms agreed in writing.",
+      "party": "vendor",
+      "canonical_topic": "auto_renewal"
+    },
+    {
+      "section": "5 Compensation",
+      "text": "Customer shall pay fees as set forth in the Order Form.",
+      "party": "vendor",
+      "canonical_topic": "payment_terms"
+    },
+    {
+      "section": "6 Communications",
+      "text": "Notices required hereunder shall be in writing and delivered to the addresses on file.",
+      "party": "vendor",
+      "canonical_topic": "notice_periods"
+    },
+    {
+      "section": "7 Confidentiality Obligations",
+      "text": "Each party shall maintain the confidentiality of the other party's information for three (3) years post-termination.",
+      "party": "vendor",
+      "canonical_topic": "confidentiality"
+    },
+    {
+      "section": "8 Indemnification by Customer",
+      "text": "Customer shall defend, indemnify, and hold harmless Vendor and its affiliates from any and all third-party claims arising out of Customer's use of the Services, Customer's data, or Customer's breach of this Agreement. Vendor shall have no reciprocal indemnification obligation under this Agreement.",
+      "party": "vendor",
+      "canonical_topic": "indemnification"
+    },
+    {
+      "section": "9 Acts of God",
+      "text": "Performance is excused for events beyond a party's reasonable control.",
+      "party": "vendor",
+      "canonical_topic": "force_majeure"
+    },
+    {
+      "section": "10 Boilerplate",
+      "text": "Invalidity of any provision shall not affect the remaining provisions.",
+      "party": "vendor",
+      "canonical_topic": "amendments"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Indemnification",
+      "acceptable_topics": ["Indemnification", "Indemnity", "Indemnification scope", "Hold harmless"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "8 Indemnification",
+      "gold_vendor_section": "8 Indemnification by Customer",
+      "notes": "Only conflict in the contract — sections 1-7 and 9-10 are matched or substantively identical. The conflict at position 8 (mutual vs Customer-only indemnification) is THE test. If the agent flags conflicts on early sections (1-3 on definitions/scope, where they are substantively the same) or misses section 8, it has failed the attention test."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "All other paired sections (1-7, 9-10) cover same topics with materially identical substance — Rule 2 cases. Only Section 8 is a real conflict. Tests whether the agent: (a) attends to all 10 sections evenly (no length-based attention drop); (b) correctly identifies Rule-2 cases throughout; (c) finds the one real conflict at position 8 (a 'middle' position that's particularly vulnerable to lost-in-the-middle). False positives on sections 1-7 or 9-10 indicate the agent is flagging stylistic differences."
+}

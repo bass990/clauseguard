@@ -1,0 +1,37 @@
+{
+  "id": "ambiguous_004",
+  "tier": "ambiguous",
+  "description": "Confidentiality survival: 3 years vs 4 years. One-year difference on a HIGH topic — defensible to flag or not.",
+  "company_clauses": [
+    {
+      "section": "9.2 Survival",
+      "text": "The confidentiality obligations set forth in this Section 9 shall survive the termination or expiration of this Agreement for a period of three (3) years.",
+      "party": "company",
+      "canonical_topic": "confidentiality"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "10.3 Survival of Confidentiality",
+      "text": "The confidentiality obligations under this Section 10 shall survive any termination of this Agreement and continue in full force and effect for a period of four (4) years following such termination.",
+      "party": "vendor",
+      "canonical_topic": "confidentiality"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Confidentiality survival",
+      "acceptable_topics": ["Confidentiality", "Confidentiality survival", "Non-disclosure", "NDA"],
+      "canonical_risk": "LOW",
+      "acceptable_risks": ["LOW", "HIGH", "MEDIUM"],
+      "canonical_favor": "Vendor",
+      "acceptable_favors": ["Vendor", "Company"],
+      "gold_company_section": "9.2 Survival",
+      "gold_vendor_section": "10.3 Survival of Confidentiality",
+      "notes": "Longer confidentiality protection favors the disclosing party. In bilateral agreements both parties disclose, so the longer period (vendor's 4 years) is slightly more protective for both sides. Defensible to flag as LOW (minor inconsistency) or to skip (substantively equivalent). HIGH is the rubric-tier for confidentiality so also defensible.",
+      "is_optional": true
+    }
+  ],
+  "expected_total_conflicts": {"min": 0, "max": 1},
+  "rubric_notes": "Same structure (post-termination survival), different duration. Without trade-secret carve-outs to compare, the 1-year gap is small. The agent that recommends retaining vendor's 4-year language as marginally more protective is showing senior judgment; the agent that no-flags it as immaterial is also defensible."
+}

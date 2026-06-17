@@ -1,0 +1,36 @@
+{
+  "id": "clear_no_conflict_002",
+  "tier": "clear_no_conflict",
+  "description": "Disjoint topics: company contract covers liability cap and indemnification; vendor contract covers warranty and force majeure. No shared topics means no conflicts possible (Rule 3).",
+  "company_clauses": [
+    {
+      "section": "7.1 Limitation of Liability",
+      "text": "Each party's total cumulative liability under this Agreement shall not exceed the total fees paid by Customer to Vendor in the twelve (12) months preceding the claim.",
+      "party": "company",
+      "canonical_topic": "liability_cap"
+    },
+    {
+      "section": "10.1 Mutual Indemnification",
+      "text": "Each party shall defend, indemnify, and hold harmless the other party from third-party claims arising out of the Indemnifying Party's breach of this Agreement or gross negligence.",
+      "party": "company",
+      "canonical_topic": "indemnification"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "6 Warranties",
+      "text": "Vendor warrants that the Services shall be performed in a professional and workmanlike manner consistent with industry standards. Customer's sole remedy for breach of this warranty shall be re-performance of the affected Services at no additional charge.",
+      "party": "vendor",
+      "canonical_topic": "warranty"
+    },
+    {
+      "section": "11 Force Majeure",
+      "text": "Neither party shall be liable for any failure or delay in performance under this Agreement caused by events beyond its reasonable control, including without limitation acts of God, war, terrorism, civil unrest, pandemic, governmental action, or natural disaster.",
+      "party": "vendor",
+      "canonical_topic": "force_majeure"
+    }
+  ],
+  "expected_conflicts": [],
+  "expected_total_conflicts": 0,
+  "rubric_notes": "Company side has liability_cap + indemnification. Vendor side has warranty + force_majeure. Zero topic overlap. Per Rule 3 (topic mismatch), no conflict by definition. The rubric_audit should return an empty list. The agent should also return zero conflicts; the test of the agent is whether it understands that different topics cannot conflict (vs feeling pressure to flag SOMETHING)."
+}

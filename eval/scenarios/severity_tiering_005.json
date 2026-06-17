@@ -1,0 +1,36 @@
+{
+  "id": "severity_tiering_005",
+  "tier": "severity_tiering",
+  "description": "Warranty disclaimer: company expects standard warranties; vendor disclaims ALL warranties including the implied warranty of merchantability. Warranty is HIGH-tier per rubric — the test is whether the agent recognizes that 'AS IS' disclaimers stay HIGH (or even tilt CRITICAL given the breadth) and don't get downgraded.",
+  "company_clauses": [
+    {
+      "section": "11 Warranties",
+      "text": "Vendor warrants to Customer that the Services shall: (a) be performed in a professional and workmanlike manner in accordance with industry standards; (b) conform in all material respects to the specifications set forth in the applicable Statement of Work; and (c) not infringe any third-party intellectual property rights. Customer's sole remedy for breach of warranty (a) or (b) shall be Vendor's re-performance of the affected Services at no additional charge.",
+      "party": "company",
+      "canonical_topic": "warranty"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "13 Disclaimer of Warranties",
+      "text": "THE SERVICES ARE PROVIDED 'AS IS' AND 'AS AVAILABLE' WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, OR NON-INFRINGEMENT. VENDOR DOES NOT WARRANT THAT THE SERVICES WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE. CUSTOMER ASSUMES THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SERVICES.",
+      "party": "vendor",
+      "canonical_topic": "warranty"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Warranty disclaimer — AS IS vs express warranties",
+      "acceptable_topics": ["Warranty", "Warranties", "Representations and warranties", "Disclaimer of warranties"],
+      "canonical_risk": "HIGH",
+      "acceptable_risks": ["HIGH", "CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "11 Warranties",
+      "gold_vendor_section": "13 Disclaimer of Warranties",
+      "notes": "Warranty is HIGH per rubric §2. Vendor's clause also disclaims non-infringement, which interacts with IP / indemnification (CRITICAL topics) — making CRITICAL also defensible if the agent reasons through the cross-topic implication. The wrong answers are MEDIUM (downgrade) or LOW (severe downgrade). Strict warranty-tier-only is HIGH; cross-topic-aware is CRITICAL."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Tests whether the agent holds the HIGH tier on a warranty disclaimer, with explicit accommodation for CRITICAL when the agent reasons that the non-infringement disclaimer interacts with indemnification/IP CRITICAL topics. acceptable_risks=[HIGH, CRITICAL] — both are senior moves. MEDIUM or LOW are tier-misses."
+}

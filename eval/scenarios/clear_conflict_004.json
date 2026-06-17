@@ -1,0 +1,42 @@
+{
+  "id": "clear_conflict_004",
+  "tier": "clear_conflict",
+  "description": "Termination rights: company contract allows termination for convenience on 90 days notice; vendor contract restricts termination to material breach only with a 30-day cure period.",
+  "company_clauses": [
+    {
+      "section": "13.1 Termination for Convenience",
+      "text": "Customer may terminate this Agreement, in whole or in part, for any reason or no reason, upon ninety (90) days' prior written notice to Vendor. Upon such termination, Customer shall pay Vendor for all Services properly performed through the effective date of termination, but shall have no further liability.",
+      "party": "company",
+      "canonical_topic": "termination_rights"
+    },
+    {
+      "section": "13.2 Termination for Cause",
+      "text": "Either party may terminate this Agreement immediately upon written notice if the other party materially breaches this Agreement and fails to cure such breach within thirty (30) days of written notice describing the breach with reasonable specificity.",
+      "party": "company",
+      "canonical_topic": "termination_rights"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "12 Termination",
+      "text": "This Agreement shall remain in full force and effect for the initial term and shall not be terminable by either party except in the event of a material, uncured breach by the other party. The non-breaching party must provide written notice of the alleged breach, and the breaching party shall have sixty (60) days from receipt of such notice to cure. Termination for convenience is not permitted under this Agreement.",
+      "party": "vendor",
+      "canonical_topic": "termination_rights"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Termination rights",
+      "acceptable_topics": ["Termination", "Termination rights", "Right to terminate", "Termination for convenience"],
+      "canonical_risk": "CRITICAL",
+      "acceptable_risks": ["CRITICAL"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "13.1 Termination for Convenience",
+      "gold_vendor_section": "12 Termination",
+      "notes": "Vendor's clause explicitly prohibits termination for convenience and extends the cure period from 30 to 60 days. Company's right to walk away on 90 days notice is the most consequential difference — vendor's clause locks Customer in for the full term absent vendor's material breach."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Both sides cover termination_rights but with two clauses on the company side. The vendor's flat no-termination-for-convenience clause is the head-on contradiction with company's 13.1. The cure-period difference (30 vs 60 days) is a secondary issue rolled into the same conflict; flagging once is the right call. Acceptable to also flag cure-period separately as MEDIUM."
+}

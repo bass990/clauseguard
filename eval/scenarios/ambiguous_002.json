@@ -1,0 +1,37 @@
+{
+  "id": "ambiguous_002",
+  "tier": "ambiguous",
+  "description": "Payment terms: Net 30 vs Net 35. 5-day gap on a HIGH-tier topic. Small enough to be a Rule-2 same-substance case OR small enough to surface but flag as LOW.",
+  "company_clauses": [
+    {
+      "section": "5 Payment Terms",
+      "text": "Customer shall pay all undisputed invoices within thirty (30) days of receipt. Late payments accrue interest at one percent (1%) per month.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "8 Invoicing",
+      "text": "Customer shall pay all invoices within thirty-five (35) days of the invoice date. Past due amounts accrue interest at one percent (1%) per month.",
+      "party": "vendor",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Payment terms",
+      "acceptable_topics": ["Payment terms", "Payment", "Net 30", "Net 35", "Payment schedule"],
+      "canonical_risk": "LOW",
+      "acceptable_risks": ["LOW", "HIGH"],
+      "canonical_favor": "Vendor",
+      "acceptable_favors": ["Vendor", "Company"],
+      "gold_company_section": "5 Payment Terms",
+      "gold_vendor_section": "8 Invoicing",
+      "notes": "Net 30 vs Net 35 is a 5-day operational gap. As payment-window favor: longer favors the payer (company), so vendor's Net 35 favors the company → canonical_favor=Vendor. Strict interpretation: HIGH risk (payment_terms bucket). Permissive: LOW or no-flag (immaterial). Both are defensible.",
+      "is_optional": true
+    }
+  ],
+  "expected_total_conflicts": {"min": 0, "max": 1},
+  "rubric_notes": "The 5-day difference is at the boundary of materiality for payment terms. The favor question repeats clear_conflict_006's logic — longer payment window favors the payer (company). A non-flag answer treats this as Rule 2 (effectively the same substance). A flag-as-LOW answer treats this as a minor inconsistency. A flag-as-HIGH answer treats payment_terms as always HIGH per the rubric §2 lookup. All three are within the acceptable range."
+}

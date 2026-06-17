@@ -1,0 +1,36 @@
+{
+  "id": "severity_tiering_002",
+  "tier": "severity_tiering",
+  "description": "Payment terms tier test: same Net-30 base but vendor adds a punitive default penalty (4% per month interest + collection costs + acceleration). Pure penalty term — HIGH-tier conflict, NOT MEDIUM.",
+  "company_clauses": [
+    {
+      "section": "5 Payment Terms",
+      "text": "Customer shall pay all undisputed invoices within thirty (30) days of receipt. Past due amounts shall accrue interest at one percent (1%) per month or the maximum lawful rate, whichever is lower, until paid.",
+      "party": "company",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "vendor_clauses": [
+    {
+      "section": "7 Payment and Default",
+      "text": "Customer shall pay all invoices within thirty (30) days of the invoice date. Any amount not paid when due shall accrue interest at four percent (4%) per month, compounded monthly. In addition, if any amount remains unpaid for more than fifteen (15) days past the due date, Vendor may declare all amounts under the Agreement immediately due and payable, and Customer shall be liable for all collection costs including reasonable attorneys' fees.",
+      "party": "vendor",
+      "canonical_topic": "payment_terms"
+    }
+  ],
+  "expected_conflicts": [
+    {
+      "topic": "Payment terms — default penalties",
+      "acceptable_topics": ["Payment terms", "Penalties", "Default penalty", "Late fee", "Late payment", "Payment default"],
+      "canonical_risk": "HIGH",
+      "acceptable_risks": ["HIGH"],
+      "canonical_favor": "Company",
+      "acceptable_favors": ["Company"],
+      "gold_company_section": "5 Payment Terms",
+      "gold_vendor_section": "7 Payment and Default",
+      "notes": "The payment WINDOW is the same (Net 30). The conflict is in the PENALTY structure: 4%/month vs 1%/month, plus acceleration and collection costs. The right canonical topic is 'penalties' (HIGH) not 'payment_terms' (also HIGH but framed as cadence). Either label maps to HIGH. The agent that downgrades to MEDIUM is treating the cadence as the only thing that matters and missing the penalty severity."
+    }
+  ],
+  "expected_total_conflicts": 1,
+  "rubric_notes": "Tests strict adherence to the rubric's HIGH bucket. Both penalties and payment_terms are HIGH per the rubric. An agent that reaches for MEDIUM (treating this as 'just a payment difference') is failing. acceptable_risks=[HIGH] only — this is a test of whether the agent stays in tier, not whether it goes higher or lower."
+}
