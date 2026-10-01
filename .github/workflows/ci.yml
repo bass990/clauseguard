@@ -21,7 +21,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -r requirements.txt
-          python -m pip install "pytest>=8.0" "ruff>=0.6" "pydantic>=2.8" httpx pytesseract Pillow
+          python -m pip install "pytest>=8.0" "ruff==0.15.17" "pydantic>=2.8" httpx pytesseract Pillow
 
       - name: Lint
         run: ruff check backend eval tests

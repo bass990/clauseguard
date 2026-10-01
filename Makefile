@@ -8,7 +8,7 @@ PYTHON ?= python
 install:
 	$(PYTHON) -m pip install -U pip
 	$(PYTHON) -m pip install -r requirements.txt
-	$(PYTHON) -m pip install "pytest>=8.0" "ruff>=0.6" "pydantic>=2.8" httpx pytesseract Pillow
+	$(PYTHON) -m pip install "pytest>=8.0" "ruff==0.15.17" "pydantic>=2.8" httpx pytesseract Pillow
 	cd frontend && npm ci --no-audit --no-fund
 
 test:
