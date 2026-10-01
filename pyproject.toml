@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clauseguard"
-version = "0.2.0"
+version = "0.3.0"
 description = "Two-tool agentic contract conflict detector with eval harness."
 requires-python = ">=3.10"
 authors = [{ name = "Mamadou Diallo" }]

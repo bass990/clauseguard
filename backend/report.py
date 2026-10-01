@@ -2,7 +2,7 @@ import io
 from datetime import datetime
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -51,7 +51,7 @@ RISK_BORDER = {
 # ─────────────────────────────────────────────
 
 def _styles():
-    base = getSampleStyleSheet()
+    getSampleStyleSheet()  # registers default fonts
 
     return {
         "cover_title": ParagraphStyle(

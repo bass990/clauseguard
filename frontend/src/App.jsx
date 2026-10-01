@@ -1,7 +1,14 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import "./App.css";
 
-const API = "http://localhost:8000";
+// Same-origin when served by the FastAPI container (VITE_API_BASE=""), dev server otherwise.
+const API = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+
+const REVIEW_CONFIG = {
+  pass: { label: "Resolution reviewed", color: "#16A34A", bg: "#F0FDF4" },
+  flag: { label: "Review flagged this resolution", color: "#D97706", bg: "#FFFBEB" },
+  hide: { label: "Resolution withheld", color: "#DC2626", bg: "#FEF2F2" },
+};
 
 const RISK_CONFIG = {
   CRITICAL: { color: "#DC2626", bg: "#FEF2F2", border: "#FECACA", label: "Critical" },
@@ -10,7 +17,7 @@ const RISK_CONFIG = {
   LOW:      { color: "#16A34A", bg: "#F0FDF4", border: "#BBF7D0", label: "Low"      },
 };
 
-function UploadZone({ label, file, onFile, color }) {
+function UploadZone({ label, file, onFile, color, disabled = false }) {
   const inputRef = useRef();
   const [dragging, setDragging] = useState(false);
 
@@ -23,12 +30,13 @@ function UploadZone({ label, file, onFile, color }) {
 
   return (
     <div
-      className={`upload-zone ${dragging ? "dragging" : ""} ${file ? "has-file" : ""}`}
+      className={`upload-zone ${dragging ? "dragging" : ""} ${file ? "has-file" : ""} ${disabled ? "disabled" : ""}`}
       style={{ "--zone-color": color }}
-      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+      onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragging(true); }}
       onDragLeave={() => setDragging(false)}
-      onDrop={handleDrop}
-      onClick={() => !file && inputRef.current?.click()}
+      onDrop={disabled ? (e) => e.preventDefault() : handleDrop}
+      onClick={() => !file && !disabled && inputRef.current?.click()}
+      title={disabled ? "Uploads are switched off in demo replay mode" : undefined}
     >
       <input
         ref={inputRef}
@@ -57,7 +65,7 @@ function UploadZone({ label, file, onFile, color }) {
       {file ? (
         <div className="upload-filename">{file.name}</div>
       ) : (
-        <div className="upload-hint">Drop PDF here or click to browse</div>
+        <div className="upload-hint">{disabled ? "Uploads off in demo mode" : "Drop PDF here or click to browse"}</div>
       )}
       {file && (
         <button
@@ -67,6 +75,24 @@ function UploadZone({ label, file, onFile, color }) {
           ✕ Remove
         </button>
       )}
+    </div>
+  );
+}
+
+// Live feed of the agent's tool calls (the agentic loop made visible). Each `tool` SSE event is one row.
+function ToolFeed({ tools }) {
+  if (!tools.length) return null;
+  return (
+    <div className="tool-feed">
+      <div className="tool-feed-title">Agent tool calls · {tools.length}</div>
+      <ol className="tool-feed-list">
+        {tools.map((t, i) => (
+          <li key={i} className={i === tools.length - 1 ? "latest" : ""}>
+            <code>{t.name}</code>
+            {t.summary && <span className="tool-feed-summary">{t.summary}</span>}
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
@@ -116,8 +142,8 @@ function SummaryBar({ summary, total }) {
   );
 }
 
-function ConflictCard({ conflict, index }) {
-  const [expanded, setExpanded] = useState(index === 0);
+function ConflictCard({ conflict, index, forceOpen = false }) {
+  const [expanded, setExpanded] = useState(forceOpen || index === 0);
   const cfg = RISK_CONFIG[conflict.risk] || RISK_CONFIG.LOW;
 
   return (
@@ -130,8 +156,11 @@ function ConflictCard({ conflict, index }) {
           <span className="conflict-topic">{conflict.topic}</span>
         </div>
         <div className="conflict-right">
-          <span className={`conflict-favor-badge ${conflict.favor === "Company" ? "favor-us" : "favor-them"}`}>
-            {conflict.favor === "Company" ? "✓ Your terms are stronger" : "⚠ Vendor has the advantage"}
+          <span className={`conflict-favor-badge ${conflict.favor === "Company" ? "favor-us" : "favor-them"}`}
+            title={conflict.favor === "Company"
+              ? "The model judged your standard clause more protective of you than the vendor's proposal: push to keep it."
+              : "The model judged the vendor's proposed clause acceptable or better for you: consider accepting it."}>
+            {conflict.favor === "Company" ? "Keep your clause" : "Vendor's version acceptable"}
           </span>
           <span className={`conflict-chevron ${expanded ? "open" : ""}`}>›</span>
         </div>
@@ -161,6 +190,15 @@ function ConflictCard({ conflict, index }) {
           <div className="conflict-resolution">
             <div className="resolution-label">Suggested Resolution</div>
             <p>{conflict.resolution}</p>
+            {conflict.resolution_review && (
+              <div className="resolution-review" style={{ color: REVIEW_CONFIG[conflict.resolution_review.verdict]?.color, background: REVIEW_CONFIG[conflict.resolution_review.verdict]?.bg }}>
+                <strong>{REVIEW_CONFIG[conflict.resolution_review.verdict]?.label || "Reviewed"}</strong>
+                {conflict.resolution_review.reason && <span> · {conflict.resolution_review.reason}</span>}
+              </div>
+            )}
+            {conflict.playbook_ref && (
+              <div className="playbook-ref">Grounded in playbook entry <code>{conflict.playbook_ref}</code></div>
+            )}
           </div>
         </div>
       )}
@@ -200,39 +238,74 @@ export default function App() {
   const [filter, setFilter] = useState("ALL");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const STEPS = ["Extract Clauses", "Find Conflicts", "Generate Brief", "Complete"];
+  const STEPS = ["Extract Clauses", "Choose Strategy", "Find Conflicts", "Review Resolutions", "Complete"];
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [serverConfig, setServerConfig] = useState(null);
+  const [governingLaw, setGoverningLaw] = useState("");
+  const [routeInfo, setRouteInfo] = useState(null);
+  const [traceInfo, setTraceInfo] = useState(null);
+  const [judgeInfo, setJudgeInfo] = useState(null);
+  const [notices, setNotices] = useState([]);
+  const [tools, setTools] = useState([]);
+  const [demoRecordedAt, setDemoRecordedAt] = useState(null);
+  const [expandAll, setExpandAll] = useState(false);
 
-  const runAnalysis = async () => {
-    if (!contractA || !contractB) return;
+  useEffect(() => {
+    fetch(`${API}/config`).then((r) => r.ok ? r.json() : null).then(setServerConfig).catch(() => setServerConfig(null));
+  }, []);
+
+  const runAnalysis = async (demo = false) => {
+    if (!demo && (!contractA || !contractB)) return;
 
     setPhase("analyzing");
     setProgressStep(0);
-    setProgressMsg("Uploading contracts...");
+    setProgressMsg(demo ? "Replaying recorded analysis of the sample contracts..." : "Uploading contracts...");
     setReport(null);
+    setRouteInfo(null);
+    setTraceInfo(null);
+    setJudgeInfo(null);
+    setNotices([]);
+    setTools([]);
+    setDemoRecordedAt(null);
+    setExpandAll(false);
 
     try {
-      // 1. Upload
-      const form = new FormData();
-      form.append("contract_a", contractA);
-      form.append("contract_b", contractB);
+      let streamUrl;
+      if (demo) {
+        streamUrl = `${API}/analyze/demo`;
+      } else {
+        const form = new FormData();
+        form.append("contract_a", contractA);
+        form.append("contract_b", contractB);
+        const uploadRes = await fetch(`${API}/upload`, { method: "POST", body: form });
+        if (!uploadRes.ok) {
+          let detail = "Upload failed";
+          try { detail = (await uploadRes.json()).detail || detail; } catch {}
+          throw new Error(detail);
+        }
+        const { session_id } = await uploadRes.json();
+        const params = governingLaw ? `?governing_law=${encodeURIComponent(governingLaw)}` : "";
+        streamUrl = `${API}/analyze/${session_id}${params}`;
+      }
 
-      const uploadRes = await fetch(`${API}/upload`, { method: "POST", body: form });
-      if (!uploadRes.ok) throw new Error("Upload failed");
-      const { session_id } = await uploadRes.json();
-
-      // 2. Stream analysis
-      const evtSource = new EventSource(`${API}/analyze/${session_id}`);
+      const evtSource = new EventSource(streamUrl);
 
       evtSource.addEventListener("status", (e) => {
         const data = JSON.parse(e.data);
         setProgressMsg(data.message);
         if (data.step !== undefined) setProgressStep(data.step);
+        if (/injection|only the first/i.test(data.message)) setNotices((n) => [...n, data.message]);
       });
+
+      evtSource.addEventListener("route", (e) => setRouteInfo(JSON.parse(e.data)));
+      evtSource.addEventListener("tool", (e) => setTools((prev) => [...prev, JSON.parse(e.data)]));
+      evtSource.addEventListener("judge", (e) => setJudgeInfo(JSON.parse(e.data)));
+      evtSource.addEventListener("trace", (e) => setTraceInfo(JSON.parse(e.data)));
 
       evtSource.addEventListener("complete", (e) => {
         evtSource.close();
         const data = JSON.parse(e.data);
+        setDemoRecordedAt(data.demo_recorded_at || null);
         setReport(data.report);
         setPhase("results");
       });
@@ -307,6 +380,13 @@ export default function App() {
     setFilter("ALL");
     setErrorMsg("");
     setProgressStep(0);
+    setRouteInfo(null);
+    setTraceInfo(null);
+    setJudgeInfo(null);
+    setNotices([]);
+    setTools([]);
+    setDemoRecordedAt(null);
+    setExpandAll(false);
   };
 
   const filteredConflicts = report?.conflicts?.filter(
@@ -339,8 +419,17 @@ export default function App() {
           <div className="upload-phase">
             <div className="upload-hero">
               <h1>Find every conflict<br /><em>before you sign.</em></h1>
-              <p>Upload two contracts. ClauseGuard's AI agent reads both, identifies every conflicting clause, ranks them by legal risk, and delivers a complete redline brief — in under 60 seconds.</p>
+              <p>Upload two contracts. ClauseGuard's AI agent reads both, identifies every conflicting clause, ranks them by legal risk, and delivers a reviewed redline brief. A typical pair takes one to two minutes; the eval is in the README.</p>
             </div>
+
+            {serverConfig?.demo && (
+              <div className="demo-banner">
+                <span><strong>Demo replay.</strong> This instance replays an analysis of the two sample contracts recorded
+                  {serverConfig.demo_recorded_at ? ` on ${new Date(serverConfig.demo_recorded_at).toISOString().slice(0, 10)}` : " earlier"} with live model calls.
+                  Uploads and the governing-law option are switched off; no model calls are made here.</span>
+                <button className="demo-btn" onClick={() => runAnalysis(true)}>Run the recorded demo →</button>
+              </div>
+            )}
 
             <div className="upload-grid">
               <UploadZone
@@ -348,6 +437,7 @@ export default function App() {
                 file={contractA}
                 onFile={setContractA}
                 color="#1E3A5F"
+                disabled={!!serverConfig?.demo}
               />
               <div className="upload-vs-divider">
                 <span>VS</span>
@@ -357,19 +447,31 @@ export default function App() {
                 file={contractB}
                 onFile={setContractB}
                 color="#7C3AED"
+                disabled={!!serverConfig?.demo}
               />
             </div>
 
+            <div className="options-row">
+              <label className="option" title={serverConfig?.demo ? "Fixed in demo replay mode" : "Flags a conflict if either contract names a different governing law"}>
+                <span>Expected governing law{serverConfig?.demo ? " (fixed in demo)" : ""}</span>
+                <select value={governingLaw} onChange={(e) => setGoverningLaw(e.target.value)} disabled={!!serverConfig?.demo}>
+                  {(serverConfig?.governing_law_options || ["", "New York", "Delaware", "California"]).map((o) => (
+                    <option key={o} value={o}>{o || "Not specified"}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
             <button
-              className={`analyze-btn ${contractA && contractB ? "ready" : "disabled"}`}
-              onClick={runAnalysis}
-              disabled={!contractA || !contractB}
+              className={`analyze-btn ${contractA && contractB && !serverConfig?.demo ? "ready" : "disabled"}`}
+              onClick={() => runAnalysis(false)}
+              disabled={!contractA || !contractB || !!serverConfig?.demo}
             >
               {contractA && contractB ? "Analyze Contracts →" : "Upload both contracts to continue"}
             </button>
 
             <div className="upload-footer-note">
-              Contracts stay local — files are deleted after analysis. No data stored.
+              Contracts stay local — files are deleted after analysis. Every analysis is written to an append-only audit log (topics and counts only, never clause text).
             </div>
           </div>
         )}
@@ -383,6 +485,7 @@ export default function App() {
             <h2>Analyzing contracts...</h2>
             <p>The agent is reading both contracts and identifying conflicts.</p>
             <ProgressBar steps={STEPS} currentStep={progressStep} message={progressMsg} />
+            <ToolFeed tools={tools} />
           </div>
         )}
 
@@ -401,6 +504,21 @@ export default function App() {
           <div className="results-phase">
             <SummaryBar summary={report.summary} total={report.total_conflicts} />
 
+            <div className="analysis-meta">
+              {routeInfo && (
+                <span className="meta-pill" title={routeInfo.reason}>
+                  Strategy: <strong>{routeInfo.route === "agentic" ? "agentic loop" : "single pass"}</strong> ({routeInfo.source})
+                </span>
+              )}
+              {report.governing_law && <span className="meta-pill">Governing law: <strong>{report.governing_law}</strong></span>}
+              {judgeInfo && (
+                <span className="meta-pill">Resolutions reviewed: <strong>{judgeInfo.reviewed}</strong>, flagged {judgeInfo.flagged}, withheld {judgeInfo.hidden}</span>
+              )}
+            </div>
+            {notices.length > 0 && (
+              <div className="notice-box">{notices.map((n, i) => <div key={i}>⚠ {n}</div>)}</div>
+            )}
+
             {report.total_conflicts === 0 ? (
               <div className="no-conflicts">
                 <div className="no-conflicts-icon">✓</div>
@@ -418,6 +536,7 @@ export default function App() {
                   <div className="results-actions">
                     <div className="results-count">
                       Showing {filteredConflicts.length} of {report.total_conflicts} conflicts
+                      <button className="link-btn" onClick={() => setExpandAll((v) => !v)}>{expandAll ? "Collapse all" : "Expand all"}</button>
                     </div>
                     <div className="download-buttons">
                       <button className="download-btn json" onClick={downloadJSON}>
@@ -432,7 +551,7 @@ export default function App() {
 
                 <div className="conflicts-list">
                   {filteredConflicts.map((conflict, i) => (
-                    <ConflictCard key={conflict.id || i} conflict={conflict} index={i} />
+                    <ConflictCard key={`${conflict.id || i}-${expandAll}`} conflict={conflict} index={i} forceOpen={expandAll} />
                   ))}
                 </div>
 
@@ -444,6 +563,24 @@ export default function App() {
                 )}
               </>
             )}
+
+            {(traceInfo || report.trace) && (() => {
+              const t = traceInfo || report.trace;
+              return (
+                <div className="trace-footer">
+                  {demoRecordedAt && (
+                    <span className="trace-replay-note">▶ Replayed trace recorded {new Date(demoRecordedAt).toISOString().slice(0, 10)}: the calls, cost and time below are from that recording; this session made no model calls.</span>
+                  )}
+                  {tools.length > 0 && <span>{tools.length} tool calls</span>}
+                  <span>request {t.request_id}</span>
+                  <span>{t.llm_calls} model calls</span>
+                  <span>{(t.input_tokens || 0).toLocaleString()} in / {(t.output_tokens || 0).toLocaleString()} out</span>
+                  <span>{(t.cache_read_tokens || 0).toLocaleString()} cached</span>
+                  <span>${Number(t.cost_usd || 0).toFixed(3)}</span>
+                  <span>{t.wall_time_s}s</span>
+                </div>
+              );
+            })()}
           </div>
         )}
       </main>

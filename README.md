@@ -2,23 +2,26 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](./requirements.txt)
-[![Model: claude-sonnet-4-6](https://img.shields.io/badge/Model-claude--sonnet--4--6-orange.svg)](./config.py)
+[![Model: claude-sonnet-5](https://img.shields.io/badge/Model-claude--sonnet--5-orange.svg)](./config.py)
+[![CI](https://img.shields.io/badge/CI-lint%20%C2%B7%20tests%20%C2%B7%20regression%20gate%20%C2%B7%20docker%20smoke-green.svg)](./.github/workflows/ci.yml)
 
-A two-tool agentic system that ingests two contract PDFs, extracts up to 120 clauses from each, surfaces material conflicts side-by-side, and produces a risk-ranked redline brief with suggested compromise language. Built as a working FastAPI + React app with an SSE stream that shows tool calls happening live.
+![ClauseGuard redline brief: ten conflicts found between the two sample contracts, the first one critical, shown side by side with the reason it conflicts, a suggested resolution and the reviewer's flag on that resolution](./docs/screenshots/redline_brief.png)
 
-**[Run guide](./RUN_GUIDE.md)**
+*The recorded demo (`CLAUSEGUARD_DEMO=1`, no API key): the brief for the two sample contracts, with the second-model review flagging where a suggested resolution is still ambiguous.*
 
-> **Status:** local prototype, runs end-to-end against the Anthropic API. No live deploy. *Decision-support for contract review, not a substitute for a lawyer.*
+An agentic contract-review system that ingests two contract PDFs, extracts the clauses, surfaces material conflicts side-by-side, and produces a risk-ranked redline brief with suggested compromise language. Version 0.3 is the **eval-driven rewrite**: the June 2026 eval showed the two-tool agentic loop and a single prompt were equivalent in aggregate but split by tier, so the system now routes each contract pair to the cheaper architecture that wins on its shape, retrieves negotiation positions from a playbook through a third tool, validates every conflict against a strict schema, reviews every suggested resolution with a second model, and traces cost per analysis. It ships as one Docker image with a demo-replay mode.
+
+**[Run guide](./RUN_GUIDE.md)** · **[Eval harness](./eval/README.md)**
+
+> **Status:** runs end-to-end against the Anthropic API, container-packaged, browser-verified. *Decision support for contract review, not a substitute for a lawyer.*
 
 ---
 
 ## The problem
 
-A mid-market company receives a vendor's redlined Master Services Agreement at 4:47 PM on a Friday. The vendor wants a signature by Monday. Inside the MSA are 80+ clauses; the legal team's tracked-changes view shows where the language differs from the company's standard terms, but it does not tell counsel which differences are *material*, liability caps, indemnification scope, IP ownership, termination rights, versus which are stylistic.
+A mid-market company receives a vendor's redlined Master Services Agreement at 4:47 PM on a Friday with a signature wanted by Monday. Inside are 80+ clauses. Tracked changes show *where* the language differs from the company's standard terms; they do not say which differences are material (liability caps, indemnification scope, IP ownership, termination rights) and which are noise.
 
-The first hour of contract review is usually clause triage: which differences are dangerous, which are negotiable, which are noise. ClauseGuard automates that first hour into a redline brief a paralegal or junior attorney can hand to senior counsel.
-
-It does **not** finalize the contract, draft the response, or replace legal review. The user-facing framing throughout this project is consistent: **triage tool for human review**, not autonomous negotiation.
+ClauseGuard automates that first hour of clause triage into a redline brief a paralegal or junior attorney can hand to senior counsel. It does **not** finalize the contract, draft the response, or replace legal review.
 
 ---
 
@@ -26,141 +29,143 @@ It does **not** finalize the contract, draft the response, or replace legal revi
 
 | Signal | Where it shows up |
 |---|---|
-| **Agentic loop with tight tool surface** | Two tools, not ten, `extract_clauses()` and `generate_redline_brief()`. The agent decides clause-by-clause comparison in its own reasoning between the two tool calls; the tools handle parsing and structured output. See [`backend/tools.py`](./backend/tools.py). |
-| **Streaming agent reasoning to the UI** | FastAPI SSE on `/analyze` streams each tool call as it happens. The React frontend shows `[Tool] extract_clauses(party_label=company)` → `[Tool] extract_clauses(party_label=vendor)` → `[Tool] generate_redline_brief(conflicts=[...])` live to the reviewer. |
-| **Structured output contract enforced via prompt** | The system prompt mandates a 10-field JSON shape per conflict (`risk`, `topic`, `company_section`, `company_text`, `vendor_section`, `vendor_text`, `conflict_explanation`, `favor`, `resolution`, `id`). Output is rendered as structured cards, not raw markdown. |
-| **Risk framework calibrated to legal practice** | 4-tier severity (CRITICAL / HIGH / MEDIUM / LOW) mapped to specific clause categories: CRITICAL covers liability, indemnification, IP, termination, governing law, arbitration; HIGH covers payment, penalties, confidentiality, exclusivity, auto-renewal. See [`config.py`](./config.py) `SYSTEM_PROMPT` for full taxonomy. |
-| **HITL by design, not as afterthought** | The output deliverable is a redline brief for human counsel, never an executed amendment. The system surfaces the `favor` field per conflict, "company" vs "vendor", explicitly framed as *from the company's perspective*, with the suggested resolution as a starting point for negotiation, not a final answer. |
-| **Defensive caps** | 120-clause cap per contract, 10 MB upload limit, 32K output token cap. Each is a configurable defense against runaway costs and adversarial inputs. |
+| **Routing built, measured, and demoted** | A rule pre-router (shared CRITICAL topics) plus a Haiku classifier sends each pair to the agentic loop or a single structured call. The September eval's `routed` branch showed it only matches the single prompt, so it ships as an opt-in cost lever (`CLAUSEGUARD_ROUTING=auto`), not the default. [`backend/router.py`](./backend/router.py). |
+| **Retrieval as a tool, measured** | A 24-entry negotiation playbook (BM25 with topic aliases) is exposed as `lookup_playbook`; conflicts cite a `playbook_ref`. The eval runs it both as an agent tool (`full_rag`) and inlined into the single prompt (`stripped_rag`) and shows the inlined form *hurts* (−19pp F1) while the tool form is neutral. [`backend/playbook.py`](./backend/playbook.py). |
+| **Strict structured outputs with repair** | Each conflict is validated against a Pydantic schema (`additionalProperties: false`); invalid items are returned to the model with the error list for one repair round. Repairs are counted on the trace. [`backend/schemas.py`](./backend/schemas.py). |
+| **LLM-as-judge on the risky output, calibrated** | A Haiku judge reviews every suggested resolution for soundness, one-sidedness, ambiguity and citation validity; unsound resolutions are withheld or flagged in the UI. 12 hand-labelled cases give 67% exact agreement and 100% safe-side (the judge never passes something labelled flag/hide). [`backend/judge.py`](./backend/judge.py), `eval/judge_calibrate.py`. |
+| **Untrusted-input defence** | Clauses are rendered as tagged data, injection patterns are flagged per clause, and optional PII redaction replaces emails, phones, SSNs, cards and IBANs with stable tokens before text leaves the process. [`backend/sanitize.py`](./backend/sanitize.py). |
+| **Observability and ceilings** | Per-analysis trace (calls, tokens, cache reads, USD, latency per stage), a token ceiling, prompt caching on the system prompt, hash-chained append-only audit log verified on `/health`, optional OpenTelemetry export. [`backend/telemetry.py`](./backend/telemetry.py). |
+| **Real-world inputs** | Tesseract OCR for scanned PDFs, a governing-law selector that becomes analysis context, 10 MB / 120-clause caps. [`backend/tools.py`](./backend/tools.py). |
+| **Tested without the network** | 260 tests, including the whole pipeline on a fake client, the FastAPI surface, OCR path, judge parsing, audit chain. CI runs lint, tests, regression gate, frontend build and a Docker demo smoke test. |
 
 ---
 
 ## System at a glance
 
 ```
-┌─────────────────────┐      ┌─────────────────────┐
-│  Contract A (PDF)   │      │  Contract B (PDF)   │
-│  company standard   │      │  vendor proposed    │
-└──────────┬──────────┘      └──────────┬──────────┘
-           │                            │
-           └──────────────┬─────────────┘
-                          ▼
-              ┌───────────────────────┐
-              │   /analyze endpoint   │  ← SSE stream to frontend
-              │   (FastAPI)           │
-              └───────────┬───────────┘
-                          ▼
-              ┌───────────────────────┐
-              │  Agentic loop         │
-              │  (Claude sonnet-4-6)  │
-              └───────────┬───────────┘
-                          │
-       ┌──────────────────┴──────────────────┐
-       ▼                                     ▼
-┌──────────────────┐                  ┌──────────────────┐
-│ extract_clauses  │  (called twice, │ extract_clauses  │
-│   party=company  │   once per       │   party=vendor   │
-└────────┬─────────┘   contract)      └────────┬─────────┘
-         │                                     │
-         └──────────────────┬──────────────────┘
-                            ▼
-              ┌───────────────────────┐
-              │  Agent reasons over   │
-              │  both clause lists,   │
-              │  identifies conflicts │
-              └───────────┬───────────┘
-                          ▼
-              ┌───────────────────────────────────┐
-              │  generate_redline_brief(conflicts)│
-              │  → 10-field JSON per conflict     │
-              └───────────┬───────────────────────┘
-                          ▼
-              ┌───────────────────────┐
-              │  Risk-ranked redline  │
-              │  cards in React UI    │
-              │  CRITICAL → LOW       │
-              └───────────────────────┘
+   Contract A (PDF)            Contract B (PDF)          governing law (optional)
+        └──────────────┬───────────────┘                          │
+                       ▼                                          │
+            PDF text (+ OCR if scanned) → clause split → injection scan → PII redaction
+                       ▼
+            ┌─────────────────────────┐
+            │ Router: rule pre-router │  shared CRITICAL topics? → agentic
+            │ then Haiku classifier   │  nothing shared?         → single
+            └───────────┬─────────────┘
+          agentic       │        single
+     ┌──────────────────┴─────────────────────┐
+     ▼                                        ▼
+ tool loop (Sonnet 5)                 one structured call (Sonnet 5)
+   extract_clauses ×2                   clauses + playbook inlined
+   lookup_playbook                      strict schema, one repair round
+   generate_redline_brief
+     └──────────────────┬─────────────────────┘
+                        ▼
+            schema validation (repair once) → resolution judge (Haiku)
+                        ▼
+            SSE stream: status · route · tool · judge · trace · complete
+                        ▼
+            risk-ranked redline cards · review badges · playbook refs · trace footer
 ```
 
 ---
 
 ## Honest disclosure
 
-Things this project is NOT, that an interviewer should know:
+1. **Two evals, and they disagree in an instructive way.** The June 2026 eval (30 scenarios × 2 branches × 3 reps, 0 errors) found FULL and STRIPPED equivalent in aggregate (64.0% vs 66.2% F1) but split by tier: the agentic loop won `severity_tiering` (+10.7pp) and the single prompt won `ambiguous` (+13.0pp). That finding produced the router.
 
-1. **Eval-validated A/B: aggregate equivalent, per-tier divergent.** A 30-scenario eval harness across 5 tiers (clear_conflict, clear_no_conflict, ambiguous, severity_tiering, adversarial) ran 360 LLM calls across 180 scored runs (30 scenarios × 2 branches × 3 reps, $6.81, 0 errors). See `eval/` for the full methodology + RUBRIC.md (committed before scenarios to neutralize scenario-author bias).
+   The September 2026 eval re-runs five branches on Sonnet 5: 30 scenarios × 5 branches × 3 reps = 450 runs, all scored (1,096 calls, $17.68; the run was interrupted once by an exhausted credit balance and finished with `--resume`, which is why the harness now fails fast and checkpoints). Report: `eval/reports/run_20260922_171534.md`.
 
-   **Aggregate: F1 is approximately equivalent.** FULL (two-tool agentic loop) 64.0% vs STRIPPED (single-prompt baseline) 66.2% — a -2.1pp lift well within the equivalence band. By the headline number, the two-tool architecture does not earn its complexity.
+   | F1, 30 scenarios × 3 reps | `full` | `stripped` | `full_rag` | `stripped_rag` | `routed` |
+   |---|---|---|---|---|---|
+   | overall (macro over tiers) | **78.9%** | 73.5% | 77.1% | 59.4% | 73.9% |
+   | precision / recall | 74.8 / 99.0 | 68.2 / 100 | 72.0 / 99.0 | 54.5 / 87.5 | 68.8 / 97.0 |
+   | `adversarial` | 81.5% | 82.2% | 76.3% | 38.5% | 73.7% |
+   | `ambiguous` | 81.5% | 81.5% | 81.5% | 87.0% | 87.0% |
+   | `clear_conflict` | 76.2% | 69.0% | 73.8% | 53.2% | 69.0% |
+   | `clear_no_conflict` | 83.3% | 66.7% | 83.3% | 44.4% | 66.7% |
+   | `severity_tiering` | 72.0% | 68.2% | 70.4% | 73.8% | 73.1% |
 
-   **Per-tier breakdown reveals real architectural signal — the two architectures are NOT interchangeable:**
+   Three things changed versus June. First, on Sonnet 5 the agentic loop now beats the single prompt by **+5.4pp F1**, almost entirely precision (it over-flags less on `clear_no_conflict` and `clear_conflict`), with run-to-run F1 range 0.05–0.07 on both, so the lift is outside noise. Second, the router did not earn its place: it matches the single prompt (73.9% vs 73.5%) while routing 51 of 90 decisions by rule and calling Haiku for the rest, but it never reaches the agentic loop's accuracy, so the **production default is now `CLAUSEGUARD_ROUTING=agentic`** and the router stays as an opt-in cost lever. Third, retrieval placement matters more than retrieval itself: the playbook as an agent tool is neutral (−1.8pp, 1.1 lookups per run), the playbook inlined into the single prompt is clearly harmful (−14pp, precision 54%), a concrete lesson about context stuffing. Schema repair fired 0 times in 450 runs.
 
-   | Tier | FULL F1 | STRIPPED F1 | Lift | Read |
-   |---|---|---|---|---|
-   | `severity_tiering` | 56.4% | 45.8% | **+10.7pp** | Agentic loop helps — explicit extract step → cleaner risk-tier decisions. `severity_tiering_003` (arbitration) was caught exactly 3/3 reps by FULL; STRIPPED over-flagged 3/3. |
-   | `clear_no_conflict` | 83.3% | 83.3% | 0 | Tied — both branches fail the same way on `clear_no_conflict_005` (over-flag identical IP clauses). |
-   | `clear_conflict` | 57.3% | 59.4% | -2.1pp | Tied. |
-   | `adversarial` | 65.7% | 72.0% | -6.3pp | Stripped wins — agentic loop more prone to fabricating conflicts (`adversarial_006` double-negative: STRIPPED 0/3, FULL 2/3 false positives). |
-   | `ambiguous` | 57.4% | 70.4% | **-13.0pp** | Stripped wins by the largest margin — extra reasoning steps amplify the false-positive tendency on borderline-material clauses. |
-
-   **Prompt injection: BOTH branches resisted.** `adversarial_001` (instruction injected into clause TEXT instructing the model to flag as LOW) and `adversarial_002` (instruction injected into section HEADER) both caught the underlying CRITICAL conflict 3/3 reps on both architectures. The agent treated the injected text as data, not commands.
-
-   **Both branches over-flag** — count MAE is ~1 conflict per scenario for both. The hardest scenarios are `severity_tiering_002` (payment-penalties: 5/4/5 vs gold 1) and `clear_conflict_006` (the payment-favor-Vendor trap: 4/4/3 vs gold 1) — both branches struggle to consolidate a single multi-faceted conflict into one finding rather than several.
-
-   **Architectural recommendation surfaced by the eval:** route by input characteristics rather than pick one architecture wholesale. Use the agentic loop when the question is *which risk tier* (severity_tiering tier where it wins +10.7pp), and the single-prompt baseline when the question is *is this even a conflict* (ambiguous tier where it wins +13.0pp). This is exactly the conditional-deliberation pattern the ChainPilot eval recommended.
-
-   Reproduce: `make eval` from `clauseguard/` with `ANTHROPIC_API_KEY` set.
-2. **Hallucination risk on resolution language.** The agent suggests compromise language for every flagged conflict. That language could be wrong, ambiguous, or contractually disadvantageous in ways that look fine to a non-lawyer reader. The UI presents resolutions as *starting points for counsel*, but a careless user could treat them as final. Production hardening would require a separate review step (LLM-as-judge or rule-based) before resolutions surface.
-3. **The "expert contract attorney" system prompt is a persona, not a substitute.** Framing Claude as an attorney in the prompt does not give Claude legal training or jurisdiction-specific case-law knowledge. The system prompt is a way to bias the model toward legal-framing language; it is not a credential.
-4. **PDF text only, no OCR.** Scanned image-only contracts produce zero clauses. Real legal workflows routinely involve scanned exhibits. OCR (Tesseract or a hosted service) is on the roadmap.
-5. **Jurisdiction-blind.** "Governing law" is one of the CRITICAL-risk categories the system identifies, but the system does not actually reason about how the conflict resolves under (say) Delaware vs New York law. It surfaces the difference; it does not resolve it.
-6. **Two demo contracts only.** All current quality evidence comes from `sample_contracts/company_standard_terms.pdf` and `vendor_proposed_terms.pdf`, a hand-crafted demo with 10 deliberate conflicts. Generalization to real M&A or commercial paper is untested.
-7. **No live deploy.** Standing this up publicly would require an Anthropic API key in the environment and meaningful safeguards against people uploading actual sensitive contracts. Deferred until the eval harness is built.
+2. **Judge calibration is small.** 12 labelled resolutions, 67% exact agreement, and it errs strictly toward hiding; a real calibration set needs a lawyer's labels and ≥ 50 cases.
+3. **Playbook is fabricated.** 24 generic negotiation positions written for the demo, not a firm's actual playbook.
+4. **"Expert contract attorney" is a persona, not a credential.** The governing-law selector adds context; it does not make the model reason about jurisdiction-specific case law.
+5. **Two demo contracts.** All UI-level evidence comes from the fabricated pair in `sample_contracts/` (10 deliberate conflicts). Scenario evidence comes from the 30 hand-written eval scenarios.
+6. **Single-side framing of `favor`.** Conflicts are always evaluated from the company's perspective.
 
 ---
 
-## What I'd want before deploying this for real
+## Cost, latency, and what an analysis looks like
 
-1. **Gold-contract eval set.** 30–50 real contract pairs (sanitized) with known conflicts. Score on conflict precision (was every flagged conflict real?), recall (did we miss any?), and severity-classification accuracy.
-2. **LLM-as-judge on resolutions.** Second-pass model reviews suggested resolution language for soundness, ambiguity, and one-sidedness. Resolutions that fail the second-pass review get hidden or flagged.
-3. **OCR pre-stage** for scanned PDFs, Tesseract for free-tier, a hosted OCR for accuracy. Detection step decides whether to OCR.
-4. **Jurisdiction tags.** Let the user select `governing_law=DE` (or whatever); the agent gets that as context and tailors the conflict analysis to actually-applicable doctrine.
-5. **PII / sensitive-clause redaction** before clauses leave the user's environment. A real legal workflow cannot send contract text to a third-party API without an enterprise agreement; a self-hosted deployment is the bigger blocker than the code itself.
-6. **Audit log immutability.** Every analyzed contract pair, the conflicts surfaced, and the resolution language, append-only, with reviewer identity attached.
-7. **Cost ceiling per analysis.** Hard cap on tokens × LLM calls per contract pair, with a UI warning when a contract approaches the 120-clause cap.
+The recorded demo run (`demo/sample_trace.json`, Sonnet 5 + Haiku judge, agentic route, 10 conflicts):
+
+| | |
+|---|---|
+| Model calls | agent loop 4 turns, router 1, judge 10 |
+| Cost | $0.25 |
+| Resolution review | 5 pass · 4 flag · 1 hide |
+| Playbook lookups | 1 |
+
+The full eval averaged $0.039 per scored run across branches (agentic runs about $0.05, single-prompt runs about $0.02). Pricing assumes Sonnet 5 at $3/$15 per million tokens and Haiku 4.5 at $1/$5; edit `PRICING` in `backend/telemetry.py` if your rates differ.
 
 ---
 
-## Failure modes
+## What went wrong along the way
 
-- **Surface-similar clauses misclassified as non-conflicts.** Two clauses that both say "30 days notice" but apply to different events (termination vs assignment) read as compatible on surface and may be missed. The agent's reasoning step is the only defense; it's also the unreliable one.
-- **Long contracts hit the 120-clause cap silently.** The UI surfaces a warning, but a busy user could miss it and assume full coverage. A larger contract with truncated extraction will under-report conflicts.
-- **Adversarial PDFs.** Multi-column layouts, watermarks across clauses, and inline footnotes all confuse the extraction. The agent does not know that extraction was poor; it analyzes whatever it got.
-- **Hallucinated section references.** The agent quotes section numbers (e.g., "Section 7.3"). If the source PDF text is garbled, the section references can be invented. Mitigation: every quote is rendered alongside the raw extracted text in the UI so a reviewer can verify.
-- **Single-side framing of `favor`.** The system always evaluates conflicts from the company's perspective. Vendor-side review using this tool would systematically misframe the conflicts.
+**Retrieval in the wrong place hurt.** I assumed giving the model the negotiation playbook would help on every branch. Inlining the 24 positions into the single-prompt branch dropped F1 from 73.5% to 59.4%, and precision to 54%: the model started reporting conflicts wherever a playbook entry matched, whether or not the contracts disagreed. The same playbook exposed as a tool the agent can call was neutral (1.1 lookups per run, minus 1.8 points, inside noise). I had not expected the placement to matter more than the content.
+
+**The router.** After the June eval showed the agentic loop and the single prompt winning different scenario tiers, I built a router to pick per contract pair. On Sonnet 5 it scored 73.9%, the same as the single prompt, and never reached the agentic loop's 78.9%. Before changing the default I checked the run-to-run spread: F1 varied by 0.05 to 0.07 across the three repetitions on both branches, so a 5.4-point gap is outside that band. The default is `agentic` now and the router is an opt-in cost lever. The report that forced this is `eval/reports/run_20260922_171534.md`.
+
+**A badge that lied on every card.** The result cards showed "Your terms are stronger" on all ten conflicts, including Auto-Renewal and Non-Compete where the vendor's text is plainly stronger. I dug into the recorded report expecting a broken field and found `favor: Company` on every row, which is correct: the field asks whose clause better protects the company, and for a company's own standard terms against a vendor's proposal the answer is always the company. The label was the lie, not the model. It now reads "Keep your clause", with a tooltip that says what is being judged.
+
+**Thirteen tool calls nobody could see.** The backend had emitted a `tool` event for every call since the first version. The front end never listened for it, so during an analysis you saw a five-step progress bar and nothing else. The tool feed is a small list; adding it took an afternoon, and it is now the part of the demo people ask about.
+
+**Running out of credit at run 200 of 450.** The September eval stopped halfway when the API balance hit zero. The harness now checkpoints every scored run, stops on the first billing or auth error instead of retrying, and continues with `--resume`. Errored runs are excluded from the numbers and listed in the report's Completeness section.
 
 ---
 
 ## Quick start
 
-Full operational guide (troubleshooting, presentation script, configuration tuning) is in [RUN_GUIDE.md](./RUN_GUIDE.md). Compact version:
-
 ```bash
-# 1. API key
-cp .env.example .env
-# Edit .env: ANTHROPIC_API_KEY=sk-ant-...
+# Docker, demo replay (no API key): API + UI on http://localhost:8000
+docker build -t clauseguard . && docker run -p 8000:8000 -e CLAUSEGUARD_DEMO=1 clauseguard
 
-# 2. Backend (Terminal 1)
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn backend.main:app --reload --port 8000
-
-# 3. Frontend (Terminal 2)
-cd frontend
-npm install && npm run dev
-# → http://localhost:3000
+# Docker, live analysis
+docker run -p 8000:8000 -e ANTHROPIC_API_KEY=sk-ant-... clauseguard
 ```
 
-Upload `sample_contracts/company_standard_terms.pdf` on the left, `sample_contracts/vendor_proposed_terms.pdf` on the right, click **Analyze Contracts**, and watch the SSE stream of tool calls in Terminal 1 while the redline brief assembles in the UI.
+Local development:
+
+```bash
+cp .env.example .env                              # add ANTHROPIC_API_KEY
+python -m venv .venv && source .venv/bin/activate # .venv\Scripts\activate on Windows
+pip install -r requirements.txt
+uvicorn backend.main:app --reload --port 8000     # Terminal 1
+cd frontend && npm install && npm run dev         # Terminal 2 → http://localhost:3000
+```
+
+Upload the two PDFs from `sample_contracts/`, pick a governing law, click **Analyze Contracts**, and watch the route decision, tool calls, judge verdicts and trace stream in.
+
+CLI: `python -m backend.agent sample_contracts/company_standard_terms.pdf sample_contracts/vendor_proposed_terms.pdf --law DE --json`.
+
+Quality gates, none of which call the model:
+
+```bash
+make test lint      # 260 tests, ruff
+make regression     # latest eval snapshot vs eval/baseline.json
+```
+
+Live measurements:
+
+```bash
+make eval-small                    # 5 scenarios × 5 branches, ~$0.85
+make eval                          # 30 × 5 × 3 reps, ~$15; add --resume to continue a stopped run
+make judge-calibrate               # judge vs 12 labelled resolutions, ~$0.05
+make record-demo                   # one analysis → demo/sample_trace.json
+```
+
+Runtime flags (see `.env.example`): `CLAUSEGUARD_ROUTING=agentic|auto|single`, `CLAUSEGUARD_JUDGE`, `CLAUSEGUARD_PLAYBOOK`, `CLAUSEGUARD_REDACT`, `CLAUSEGUARD_OCR`, `CLAUSEGUARD_TOKEN_CEILING`, `CLAUSEGUARD_DEMO`, `CLAUSEGUARD_API_KEY` (bearer token for the public endpoints).
 
 ---
 
@@ -168,34 +173,32 @@ Upload `sample_contracts/company_standard_terms.pdf` on the left, `sample_contra
 
 ```
 clauseguard/
-├── README.md                          ← you are here (portfolio front door)
-├── RUN_GUIDE.md                       ← operational guide (setup, demo, troubleshooting, config)
-├── LICENSE                            ← MIT
-├── config.py                          ← MODEL · MAX_TOKENS · MAX_CLAUSES · SYSTEM_PROMPT
-├── requirements.txt
+├── README.md · RUN_GUIDE.md · LICENSE
+├── Dockerfile · docker-compose.yml · Makefile · .github/workflows/ci.yml
+├── config.py                      ← models, flags, ceilings, SYSTEM_PROMPT (lazy API-key check)
 ├── backend/
-│   ├── tools.py                       ← extract_clauses + generate_redline_brief schemas
-│   ├── agent.py                       ← agentic loop (CLI entry point)
-│   ├── main.py                        ← FastAPI: /upload + /analyze SSE
-│   └── report.py                      ← redline brief rendering
-├── frontend/src/
-│   ├── App.jsx                        ← upload UI, SSE consumer, redline cards
-│   └── App.css                        ← legal-tech design system
-├── sample_contracts/
-│   ├── company_standard_terms.pdf     ← Contract A with 10 deliberate conflicts
-│   └── vendor_proposed_terms.pdf      ← Contract B
-└── scripts/                           ← presentation rebuild script
+│   ├── pipeline.py                ← analyze(): routing, agentic/single runs, judge, trace, audit
+│   ├── tools.py                   ← extract_clauses (OCR), lookup_playbook, generate_redline_brief
+│   ├── router.py · judge.py · playbook.py · playbook.json
+│   ├── schemas.py · sanitize.py · telemetry.py
+│   ├── agent.py                   ← CLI
+│   └── main.py                    ← FastAPI: /upload, /analyze SSE, /analyze/demo, /config, static UI
+├── frontend/src/                  ← React: route/judge/trace pills, review badges, playbook refs
+├── demo/sample_trace.json         ← recorded analysis for CLAUSEGUARD_DEMO=1
+├── sample_contracts/              ← fabricated demo pair
+├── eval/                          ← 30 scenarios, 5 branches, deterministic scorers, regression gate, judge calibration
+├── scripts/record_demo.py
+└── tests/                         ← 260 tests, no network
 ```
 
 ---
 
 ## License
 
-[MIT](./LICENSE). The two sample contracts in `sample_contracts/` are fabricated demonstration documents, no real business agreement, vendor, or company is represented.
+[MIT](./LICENSE). The sample contracts and the playbook are fabricated demonstration documents; no real business agreement, vendor, or company is represented.
 
 ---
 
 ## Author
 
 Mamadou Bassirou Diallo · MS Business Analytics & AI, UT Dallas · [LinkedIn](https://www.linkedin.com/in/mamadou9905) · [GitHub](https://github.com/bass990)
-

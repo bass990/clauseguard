@@ -135,16 +135,36 @@ def test_mock_extract_clauses_unknown_label():
 def test_mock_generate_redline_brief_counts_summary():
     from eval.runners import _mock_generate_redline_brief  # noqa: PLC0415
 
+    def full(risk, topic):
+        return {
+            "risk": risk, "topic": topic, "company_section": "1", "company_text": "company language",
+            "vendor_section": "2", "vendor_text": "vendor language",
+            "conflict_explanation": "materially different obligations", "favor": "Company",
+            "resolution": "use the company language as the starting point",
+        }
+
     conflicts = [
-        {"risk": "CRITICAL", "topic": "Liability cap"},
-        {"risk": "HIGH", "topic": "Payment terms"},
-        {"risk": "high", "topic": "Confidentiality"},  # lowercase ok
+        full("CRITICAL", "Liability cap"),
+        full("HIGH", "Payment terms"),
+        full("high", "Confidentiality"),  # lowercase ok: validator upper-cases
     ]
     result = _mock_generate_redline_brief(conflicts)
     assert result["success"] is True
     assert result["report"]["total_conflicts"] == 3
     assert result["report"]["summary"]["CRITICAL"] == 1
     assert result["report"]["summary"]["HIGH"] == 2
+
+
+def test_mock_generate_redline_brief_rejects_partial_conflicts():
+    """The eval runs the production validator: a conflict missing required
+    fields is returned as a schema error for the model to repair, exactly
+    as in production."""
+    from eval.runners import _mock_generate_redline_brief  # noqa: PLC0415
+
+    result = _mock_generate_redline_brief([{"risk": "CRITICAL", "topic": "Liability cap"}])
+    assert result["success"] is False
+    assert result["validation_errors"]
+    assert "company_section" in result["validation_errors"][0]
 
 
 # ---------------------------------------------------------------------------
@@ -335,7 +355,10 @@ def test_run_full_pipeline_passes_eval_system_prompt():
     with patch("eval.runners._get_anthropic_client", return_value=client):
         run_full_pipeline(scenario, rep=0)
 
-    assert client.messages.create.call_args.kwargs["system"] == SYSTEM_PROMPT_FULL_EVAL
+    system = client.messages.create.call_args.kwargs["system"]
+    # The prompt is sent as a cache_control block so repeated runs reuse the prefix.
+    assert isinstance(system, list) and system[0]["text"] == SYSTEM_PROMPT_FULL_EVAL
+    assert system[0]["cache_control"] == {"type": "ephemeral"}
 
 
 def test_run_full_pipeline_captures_api_error():

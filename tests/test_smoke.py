@@ -41,9 +41,9 @@ def test_rubric_committed_before_scenarios():
 
 def test_readme_documents_branches():
     readme = (EVAL_DIR / "README.md").read_text(encoding="utf-8")
-    assert "FULL branch" in readme
-    assert "STRIPPED branch" in readme
-    assert "A/B" in readme
+    assert "`full`" in readme
+    assert "`stripped`" in readme
+    assert "lift" in readme.lower()
 
 
 # ---------------------------------------------------------------------------
@@ -59,7 +59,14 @@ def test_cost_for_call_sonnet_4_6():
     assert abs(cost - 18.0) < 1e-9
 
 
-def test_cost_for_call_haiku_4_5():
+def test_cost_for_call_haiku_4_5_current_pricing():
+    """Haiku 4.5 is $1 / $5 per million tokens (the old table carried Haiku 3 rates)."""
+    from eval.instrumentation import cost_for_call  # noqa: PLC0415
+
+    assert abs(cost_for_call("claude-haiku-4-5-20251001", 1_000_000, 1_000_000) - 6.0) < 1e-9
+
+
+def _legacy_test_cost_for_call_haiku_4_5():
     from eval.instrumentation import cost_for_call  # noqa: PLC0415
 
     # 1M input + 1M output at haiku 4.5 should be $0.25 + $1.25 = $1.50.

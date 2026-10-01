@@ -154,8 +154,12 @@ class Scenario(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+BRANCHES: tuple[str, ...] = ("full", "stripped", "full_rag", "stripped_rag", "routed")
+Branch = Literal["full", "stripped", "full_rag", "stripped_rag", "routed"]
+
+
 class PredictedConflict(BaseModel):
-    """A conflict as the agent emits it (10-field schema from system prompt)."""
+    """A conflict as the agent emits it (10-field schema + optional playbook_ref)."""
 
     id: int
     risk: Risk
@@ -167,6 +171,7 @@ class PredictedConflict(BaseModel):
     conflict_explanation: str
     favor: Favor
     resolution: str
+    playbook_ref: Optional[str] = None
 
 
 class ScenarioResult(BaseModel):
@@ -174,7 +179,7 @@ class ScenarioResult(BaseModel):
 
     scenario_id: str
     tier: Tier
-    branch: Literal["full", "stripped"]
+    branch: Branch
     rep: int
 
     # Agent output. None if the run errored.
@@ -184,6 +189,12 @@ class ScenarioResult(BaseModel):
     # Bookkeeping.
     error: Optional[str] = None
     duration_seconds: float = 0.0
+
+    # Branch-specific bookkeeping.
+    playbook_calls: int = 0
+    schema_retries: int = 0
+    route: Optional[str] = None          # routed branch: "agentic" | "single"
+    route_source: Optional[str] = None   # routed branch: "rule" | "model" | "fallback"
 
 
 # ---------------------------------------------------------------------------
@@ -214,7 +225,7 @@ class DetectionScore(BaseModel):
 class BranchMetrics(BaseModel):
     """Aggregated metrics across scenarios for one branch."""
 
-    branch: Literal["full", "stripped"]
+    branch: Branch
     n_scenarios: int
     n_reps: int
 
@@ -240,11 +251,22 @@ class BranchMetrics(BaseModel):
     # Per-tier breakdown — same metrics scoped to each tier.
     per_tier: dict[str, dict[str, float]] = Field(default_factory=dict)
 
+    # Completeness: errored runs are excluded from every metric above; a
+    # scenario whose reps all errored is dropped and listed here.
+    n_errored_runs: int = 0
+    scenarios_dropped: list[str] = Field(default_factory=list)
+
 
 class ABLiftResult(BaseModel):
-    """The headline A/B finding for one metric family."""
+    """The A/B finding for one metric family: candidate vs baseline.
+
+    `full_score`/`stripped_score` keep their historical names; `candidate`
+    and `baseline` name the branches actually compared.
+    """
 
     metric: str
+    candidate: str = "full"
+    baseline: str = "stripped"
     full_score: float
     stripped_score: float
     lift: float

@@ -1,0 +1,26 @@
+{
+  "model": "claude-sonnet-5",
+  "tolerance": 0.1,
+  "branches": {
+    "full": {
+      "f1": 0.789,
+      "max_fp_on_no_conflict": 0.67
+    },
+    "stripped": {
+      "f1": 0.7353,
+      "max_fp_on_no_conflict": 1.22
+    },
+    "full_rag": {
+      "f1": 0.7707,
+      "max_fp_on_no_conflict": 0.67
+    },
+    "stripped_rag": {
+      "f1": 0.5939,
+      "max_fp_on_no_conflict": 1.61
+    },
+    "routed": {
+      "f1": 0.7391,
+      "max_fp_on_no_conflict": 1.06
+    }
+  }
+}

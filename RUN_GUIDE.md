@@ -111,14 +111,14 @@ All tuneable settings live in `config.py`:
 
 | Setting | Default | Override |
 |---|---|---|
-| Model | `claude-sonnet-4-6` | Set `CLAUSEGUARD_MODEL` env var |
+| Model | `claude-sonnet-5` | Set `CLAUSEGUARD_MODEL` env var |
 | Max output tokens | `32000` | Edit `MAX_TOKENS` in `config.py` |
 | Max file size | `10MB` | Edit `MAX_FILE_SIZE` in `config.py` |
 | Max clauses per contract | `120` | Edit `MAX_CLAUSES` in `config.py` |
 
 To use a different model without editing code:
 ```bash
-CLAUSEGUARD_MODEL=claude-opus-4-7 uvicorn backend.main:app --reload --port 8000
+CLAUSEGUARD_MODEL=claude-opus-5 uvicorn backend.main:app --reload --port 8000
 ```
 
 ---
@@ -182,3 +182,30 @@ npm install -g pptxgenjs
 
 ---
 
+
+## Docker (v0.3)
+
+One image serves the API and the built UI on port 8000:
+
+```bash
+docker build -t clauseguard .
+docker run -p 8000:8000 -e CLAUSEGUARD_DEMO=1 clauseguard          # replay demo/sample_trace.json, no key
+docker run -p 8000:8000 --env-file .env clauseguard                # live analysis
+```
+
+`docker compose up` does the same with `logs/` mounted so the audit log survives restarts.
+
+## v0.3 runtime flags
+
+| Flag | Default | Effect |
+|---|---|---|
+| `CLAUSEGUARD_ROUTING` | `agentic` | `agentic` (eval winner) or `single` force one architecture; `auto` routes per contract pair (rule pre-router + Haiku classifier) |
+| `CLAUSEGUARD_JUDGE` | `1` | second-pass review of every suggested resolution (Haiku) |
+| `CLAUSEGUARD_PLAYBOOK` | `1` | `lookup_playbook` tool / inline playbook context |
+| `CLAUSEGUARD_REDACT` | `0` | replace emails, phones, SSNs, cards, IBANs with stable tokens before analysis |
+| `CLAUSEGUARD_OCR` | `0` | OCR scanned pages with Tesseract (`TESSERACT_CMD` if not on PATH) |
+| `CLAUSEGUARD_TOKEN_CEILING` | `250000` | abort an analysis past this many tokens |
+| `CLAUSEGUARD_DEMO` | `0` | replay the recorded analysis; uploads disabled |
+| `CLAUSEGUARD_API_KEY` | unset | bearer token required on `/upload` and `/analyze` when set |
+
+The UI shows the route decision, judge verdicts and a trace footer (calls, cost, latency, cache reads) for every analysis; `/health` reports whether `logs/audit.jsonl` still verifies.

@@ -300,8 +300,14 @@ def _avg(values: list[float]) -> float:
 def _per_scenario_metrics(
     scenario: Scenario,
     rep_results: list[ScenarioResult],
-) -> dict[str, float]:
-    """Average across reps for one scenario."""
+) -> Optional[dict[str, float]]:
+    """Average across the successful reps for one scenario.
+
+    Errored reps (API failure, exhausted credits, timeouts) are excluded
+    rather than scored as zero: a billing outage is not evidence about the
+    architecture. Returns None when every rep errored, so the scenario drops
+    out of the aggregate and is listed in the report's completeness section.
+    """
     precisions: list[float] = []
     recalls: list[float] = []
     f1s: list[float] = []
@@ -314,21 +320,6 @@ def _per_scenario_metrics(
 
     for r in rep_results:
         if r.error:
-            # Errored rep: score as zero on quality metrics (worst case).
-            precisions.append(0.0)
-            recalls.append(0.0)
-            f1s.append(0.0)
-            risk_strict.append(0.0)
-            risk_lenient.append(0.0)
-            favor_strict.append(0.0)
-            favor_lenient.append(0.0)
-            fp_counts.append(0.0)
-            # count_dev: penalize by expected count.
-            expected = scenario.expected_total_conflicts
-            if isinstance(expected, ConflictCountRange):
-                count_dev.append(float(expected.max))
-            else:
-                count_dev.append(float(expected))
             continue
 
         det = score_conflict_detection(scenario, r)
@@ -347,6 +338,8 @@ def _per_scenario_metrics(
         fp_counts.append(float(fp))
         count_dev.append(ct)
 
+    if not f1s:
+        return None
     return {
         "precision": _avg(precisions),
         "recall": _avg(recalls),
@@ -392,12 +385,17 @@ def aggregate_branch_metrics(
 
     per_tier_scenario_scores: dict[str, list[dict[str, float]]] = defaultdict(list)
     no_conflict_fp_per_scenario: list[float] = []
+    n_errored_runs = sum(1 for r in results if r.error)
+    dropped: list[str] = []
 
     for scenario_id, rep_results in results_by_scenario.items():
         scenario = scenario_by_id.get(scenario_id)
         if scenario is None:
             continue
         per_scenario = _per_scenario_metrics(scenario, rep_results)
+        if per_scenario is None:
+            dropped.append(scenario_id)
+            continue
         per_tier_scenario_scores[scenario.tier].append(per_scenario)
         if scenario.tier == "clear_no_conflict":
             no_conflict_fp_per_scenario.append(per_scenario["fp_count"])
@@ -438,6 +436,8 @@ def aggregate_branch_metrics(
         avg_fp_on_no_conflict=_avg(no_conflict_fp_per_scenario),
         count_mae=_across_tiers("count_dev"),
         per_tier=per_tier_metrics,
+        n_errored_runs=n_errored_runs,
+        scenarios_dropped=sorted(dropped),
     )
 
 
@@ -469,7 +469,10 @@ def compute_ab_lift(
     full: BranchMetrics,
     stripped: BranchMetrics,
 ) -> list[ABLiftResult]:
-    """Per-metric A/B lift between FULL and STRIPPED branches."""
+    """Per-metric lift of a candidate branch (`full`) over a baseline (`stripped`).
+
+    The parameter names are historical; any two branches can be compared.
+    """
     items = [
         ("precision", full.avg_precision, stripped.avg_precision, False),
         ("recall", full.avg_recall, stripped.avg_recall, False),
@@ -488,6 +491,8 @@ def compute_ab_lift(
         out.append(
             ABLiftResult(
                 metric=name,
+                candidate=full.branch,
+                baseline=stripped.branch,
                 full_score=full_v,
                 stripped_score=stripped_v,
                 lift=lift,

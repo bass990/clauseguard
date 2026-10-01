@@ -1,0 +1,145 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "n": 12,
+  "exact_agreement": 0.6666666666666666,
+  "safe_side_rate": 1.0,
+  "confusion": {
+    "pass->pass": 5,
+    "hide->hide": 3,
+    "flag->hide": 4
+  },
+  "rows": [
+    {
+      "id": "cal_01",
+      "expected": "pass",
+      "got": "pass",
+      "reason": "Resolution aligns precisely with playbook standard position: mutual cap at 12-month fees with identical carve-outs for indemnification, confidentiality breach, gross negligence, and willful misconduct, creating balanced protection for both parties while preserving meaningful remedies for serious breaches.",
+      "model_verdict": "pass",
+      "sound": true,
+      "one_sided": false,
+      "ambiguous": false,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_02",
+      "expected": "hide",
+      "got": "hide",
+      "reason": "The resolution is legally incoherent: deferring governing law choice to the time of dispute creates unpredictability, eliminates certainty of applicable rules, and London arbitration under unspecified law contradicts the playbook's mandate against foreign law for US counterparties.",
+      "model_verdict": "hide",
+      "sound": false,
+      "one_sided": false,
+      "ambiguous": true,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_03",
+      "expected": "flag",
+      "got": "hide",
+      "reason": "Resolution eliminates all vendor protections and contradicts the playbook's balanced standard (mutual breach termination rights, customer convenience rights with refunds, transition assistance)\u2014leaving the company exposed to vendor leverage during implementation and vulnerable to claims of bad faith.",
+      "model_verdict": "hide",
+      "sound": false,
+      "one_sided": true,
+      "ambiguous": false,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_04",
+      "expected": "pass",
+      "got": "pass",
+      "reason": "Resolution balances company and vendor interests by splitting the difference on payment terms (Net 30 vs. Net 15/45), caps late interest at playbook standard (1%), adds protective language (good-faith withholding, notice requirement), and aligns with playbook guidance.",
+      "model_verdict": "pass",
+      "sound": true,
+      "one_sided": false,
+      "ambiguous": false,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_05",
+      "expected": "flag",
+      "got": "hide",
+      "reason": "Resolution uses undefined \"reasonable time\" instead of proposing a specific period, leaving the core dispute unresolved and contradicting the playbook's concrete fallback options.",
+      "model_verdict": "hide",
+      "sound": false,
+      "one_sided": false,
+      "ambiguous": true,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_06",
+      "expected": "flag",
+      "got": "hide",
+      "reason": "The resolution addresses auto-renewal terms but the cited playbook entry covers insurance requirements\u2014a completely unrelated topic\u2014making the citation incoherent and misleading to counsel.",
+      "model_verdict": "hide",
+      "sound": false,
+      "one_sided": false,
+      "ambiguous": false,
+      "citation_valid": false
+    },
+    {
+      "id": "cal_07",
+      "expected": "hide",
+      "got": "hide",
+      "reason": "Resolution is legally incoherent: mutual indemnification for each party's own negligence creates circular liability with no actual risk allocation, contradicts the playbook's standard position, and leaves the company worse off than its opening position.",
+      "model_verdict": "hide",
+      "sound": false,
+      "one_sided": false,
+      "ambiguous": false,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_08",
+      "expected": "pass",
+      "got": "pass",
+      "reason": "The resolution is legally coherent, mutually balanced, and aligns with the playbook standard position by requiring consent not to be unreasonably withheld and carving out affiliate/successor transfers with notice.",
+      "model_verdict": "pass",
+      "sound": true,
+      "one_sided": false,
+      "ambiguous": false,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_09",
+      "expected": "flag",
+      "got": "hide",
+      "reason": "Resolution uses undefined term 'appropriate to the engagement' without specifying minimums, leaving the vendor free to offer inadequate coverage and creating unenforceable ambiguity.",
+      "model_verdict": "hide",
+      "sound": false,
+      "one_sided": false,
+      "ambiguous": true,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_10",
+      "expected": "pass",
+      "got": "pass",
+      "reason": "The resolution accepts vendor's 35-day term, which aligns with the playbook's first fallback position and eliminates ambiguity without materially disadvantaging the company.",
+      "model_verdict": "pass",
+      "sound": true,
+      "one_sided": false,
+      "ambiguous": false,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_11",
+      "expected": "hide",
+      "got": "hide",
+      "reason": "The resolution creates a legally incoherent ownership flip at termination that contradicts the playbook, leaves sublicensing rights undefined, and would leave the company worse off by losing ownership of bespoke work it commissioned.",
+      "model_verdict": "hide",
+      "sound": false,
+      "one_sided": false,
+      "ambiguous": true,
+      "citation_valid": true
+    },
+    {
+      "id": "cal_12",
+      "expected": "pass",
+      "got": "pass",
+      "reason": "The resolution directly implements the playbook standard position, removes the vendor's coercive arbitration clause, preserves company litigation rights and injunctive relief, and includes a reasonable escalation-mediation pathway that benefits both parties.",
+      "model_verdict": "pass",
+      "sound": true,
+      "one_sided": false,
+      "ambiguous": false,
+      "citation_valid": true
+    }
+  ]
+}

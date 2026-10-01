@@ -1,0 +1,568 @@
+{
+ "recorded_at": "2026-09-18T00:28:48.041440+00:00",
+ "model": "claude-sonnet-5",
+ "fast_model": "claude-haiku-4-5-20251001",
+ "events": [
+  {
+   "event": "status",
+   "message": "Extracting clauses from both contracts...",
+   "step": 1,
+   "total": 4,
+   "request_id": "01fe6671b8a6"
+  },
+  {
+   "event": "status",
+   "message": "Choosing the analysis strategy...",
+   "step": 2,
+   "total": 4
+  },
+  {
+   "event": "route",
+   "route": "agentic",
+   "reason": "shared CRITICAL-tier topics (governing_law, indemnification, ip_ownership, liability_cap, termination_rights); severity tiering dominates",
+   "confidence": 0.8,
+   "source": "rule"
+  },
+  {
+   "event": "status",
+   "message": "Analyzing conflicts (agentic branch)...",
+   "step": 3,
+   "total": 4
+  },
+  {
+   "event": "tool",
+   "name": "extract_clauses",
+   "summary": "company: 10 clauses"
+  },
+  {
+   "event": "tool",
+   "name": "extract_clauses",
+   "summary": "vendor: 10 clauses"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Term and Termination - termination for convenience -> ['pb_termination_rights', 'pb_auto_renewal']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Payment Terms - net payment days and dispute rights -> ['pb_payment_terms', 'pb_breach_consequences']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Limitation of Liability -> ['pb_liability_cap', 'pb_insurance']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Intellectual Property Ownership -> ['pb_ip_ownership', 'pb_indemnification']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Confidentiality obligations and duration -> ['pb_confidentiality', 'pb_liability_cap']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Governing Law and Dispute Resolution -> ['pb_governing_law', 'pb_arbitration']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Indemnification -> ['pb_indemnification', 'pb_liability_cap']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Non-compete and Exclusivity -> ['pb_exclusivity', 'pb_breach_consequences']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Auto-renewal terms -> ['pb_auto_renewal', 'pb_amendments']"
+  },
+  {
+   "event": "tool",
+   "name": "lookup_playbook",
+   "summary": "Audit rights -> ['pb_audit_rights', 'pb_data_protection']"
+  },
+  {
+   "event": "tool",
+   "name": "generate_redline_brief",
+   "summary": "10 conflicts validated"
+  },
+  {
+   "event": "status",
+   "message": "Reviewing 10 suggested resolutions...",
+   "step": 4,
+   "total": 4
+  },
+  {
+   "event": "judge",
+   "reviewed": 10,
+   "flagged": 4,
+   "hidden": 1
+  },
+  {
+   "event": "trace",
+   "request_id": "01fe6671b8a6",
+   "llm_calls": 14,
+   "tool_calls": 13,
+   "input_tokens": 43232,
+   "output_tokens": 9207,
+   "cache_write_tokens": 2324,
+   "cache_read_tokens": 6972,
+   "cost_usd": 0.25383,
+   "llm_latency_s": 91.26,
+   "wall_time_s": 91.74,
+   "parse_failures": 0,
+   "spans": [
+    {
+     "name": "agent",
+     "model": "claude-sonnet-5",
+     "input_tokens": 184,
+     "output_tokens": 181,
+     "cache_write_tokens": 2324,
+     "cache_read_tokens": 0,
+     "duration_s": 2.8227181434631348,
+     "cost_usd": 0.011982,
+     "ok": true,
+     "note": "turn 1"
+    },
+    {
+     "name": "agent",
+     "model": "claude-sonnet-5",
+     "input_tokens": 2857,
+     "output_tokens": 762,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 2324,
+     "duration_s": 6.1929357051849365,
+     "cost_usd": 0.0206982,
+     "ok": true,
+     "note": "turn 2"
+    },
+    {
+     "name": "agent",
+     "model": "claude-sonnet-5",
+     "input_tokens": 11337,
+     "output_tokens": 6209,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 2324,
+     "duration_s": 51.62420415878296,
+     "cost_usd": 0.1278432,
+     "ok": true,
+     "note": "turn 3"
+    },
+    {
+     "name": "agent",
+     "model": "claude-sonnet-5",
+     "input_tokens": 22232,
+     "output_tokens": 902,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 2324,
+     "duration_s": 10.790351629257202,
+     "cost_usd": 0.0809232,
+     "ok": true,
+     "note": "turn 4"
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 697,
+     "output_tokens": 115,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.067667245864868,
+     "cost_usd": 0.001272,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 725,
+     "output_tokens": 111,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.0509653091430664,
+     "cost_usd": 0.00128,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 728,
+     "output_tokens": 118,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.0237696170806885,
+     "cost_usd": 0.001318,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 678,
+     "output_tokens": 103,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.115544080734253,
+     "cost_usd": 0.001193,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 652,
+     "output_tokens": 120,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 1.9847049713134766,
+     "cost_usd": 0.001252,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 614,
+     "output_tokens": 119,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.054028272628784,
+     "cost_usd": 0.001209,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 676,
+     "output_tokens": 112,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.0895731449127197,
+     "cost_usd": 0.001236,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 627,
+     "output_tokens": 110,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.0154740810394287,
+     "cost_usd": 0.001177,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 649,
+     "output_tokens": 137,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 2.025270700454712,
+     "cost_usd": 0.001334,
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "judge",
+     "model": "claude-haiku-4-5-20251001",
+     "input_tokens": 576,
+     "output_tokens": 108,
+     "cache_write_tokens": 0,
+     "cache_read_tokens": 0,
+     "duration_s": 1.4055659770965576,
+     "cost_usd": 0.001116,
+     "ok": true,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "event": "status",
+   "message": "Analysis complete!",
+   "step": 4,
+   "total": 4
+  },
+  {
+   "event": "complete",
+   "report": {
+    "title": "Contract Conflict Analysis \u2014 Redline Brief",
+    "total_conflicts": 10,
+    "summary": {
+     "CRITICAL": 5,
+     "HIGH": 4,
+     "MEDIUM": 1,
+     "LOW": 0
+    },
+    "conflicts": [
+     {
+      "id": 1,
+      "risk": "CRITICAL",
+      "topic": "Term & Termination for Convenience",
+      "company_section": "1. TERM AND TERMINATION",
+      "company_text": "This Agreement shall commence on the Effective Date and continue for twelve (12) months. Either party may terminate for convenience upon thirty (30) days written notice. The Company may terminate immediately for material breach.",
+      "vendor_section": "1. TERM AND TERMINATION",
+      "vendor_text": "This Agreement shall commence on the Effective Date and continue for twenty-four (24) months. Termination for convenience is not permitted during the initial term. Either party may terminate only for uncured material breach following a 90-day cure period.",
+      "conflict_explanation": "The vendor doubles the term length, eliminates the company's ability to terminate for convenience during the initial term, and stretches the cure period for breach from immediate (company's terms) to 90 days, significantly reducing the company's exit flexibility and remedy speed.",
+      "favor": "Company",
+      "resolution": "Adopt a 12-month initial term with mutual termination for convenience on 60 days' notice (per playbook fallback: convenience termination after an initial 12-month commitment); retain company's right to terminate immediately for material breach, with a 30-day cure period for non-payment/other breaches as a fallback, plus 90 days of transition assistance.",
+      "playbook_ref": "pb_termination_rights",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": true,
+       "cites_playbook_correctly": true,
+       "verdict": "flag",
+       "model_verdict": "flag",
+       "reason": "Resolution correctly applies playbook fallback and balances interests, but 'material breach' is undefined and the interaction between immediate termination and 30-day cure period is ambiguous (does immediate termination apply only to payment defaults or all breaches?).",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 2,
+      "risk": "HIGH",
+      "topic": "Payment Terms",
+      "company_section": "2. PAYMENT TERMS",
+      "company_text": "Vendor shall invoice monthly. Payment is due Net 60 from receipt of invoice. Late payments accrue interest at 1.5% per month. Company may dispute invoices within 15 days of receipt.",
+      "vendor_section": "2. PAYMENT TERMS",
+      "vendor_text": "Client shall pay all invoices within Net 30 days. Disputed invoices must be raised within 5 days or are deemed accepted. Late payments accrue interest at 3% per month. Client waives the right to withhold payment after invoice acceptance.",
+      "conflict_explanation": "Payment windows conflict directly (Net 60 vs Net 30), dispute windows conflict (15 days vs 5 days deemed-accepted), late interest rates differ (1.5% vs 3%), and the vendor's waiver of withholding rights after acceptance removes a protection the company's clause implicitly preserves.",
+      "favor": "Company",
+      "resolution": "Settle at Net 30-45 days with a 15-day (or longer) dispute window preserved from the company's terms, late interest capped at 1.5%/month, and strike the blanket waiver of withholding rights for good-faith disputed amounts (per playbook standard position of Net 45 with good-faith withholding and 1% cap, falling back to Net 30/1.5%/15-day grace).",
+      "playbook_ref": "pb_payment_terms",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": false,
+       "cites_playbook_correctly": true,
+       "verdict": "pass",
+       "model_verdict": "pass",
+       "reason": "The resolution splits the difference on payment terms (Net 30\u201345), preserves the company's dispute window and late interest cap, removes the vendor's dangerous waiver, and aligns closely with playbook standard position and stated fallbacks.",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 3,
+      "risk": "CRITICAL",
+      "topic": "Limitation of Liability",
+      "company_section": "3. LIABILITY CAP",
+      "company_text": "Total liability for either party shall not exceed fees paid in the three (3) months preceding the claim. Neither party shall be liable for indirect, incidental, or consequential damages under any circumstances.",
+      "vendor_section": "3. LIABILITY",
+      "vendor_text": "Vendor liability is not limited for claims arising from IP infringement or willful misconduct. For all other claims, liability is limited to fees paid in the prior twelve (12) months. Client accepts unlimited liability for consequential damages in cases of non-payment.",
+      "conflict_explanation": "The caps use different measurement periods (3 months vs 12 months) and the vendor's clause is asymmetric: it uncaps vendor liability only for IP/willful misconduct while separately imposing UNLIMITED consequential-damages liability on the company for non-payment, directly contradicting the company's mutual, absolute waiver of consequential damages for both parties.",
+      "favor": "Company",
+      "resolution": "Adopt a mutual liability cap at 12 months of fees paid (company's fallback), with carve-outs for indemnification, confidentiality breach, gross negligence and willful misconduct remaining uncapped for both parties; strike the one-sided unlimited consequential-damages exposure for the company on non-payment and restore the mutual consequential-damages waiver.",
+      "playbook_ref": "pb_liability_cap",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": false,
+       "cites_playbook_correctly": true,
+       "verdict": "pass",
+       "model_verdict": "pass",
+       "reason": "The resolution adopts the playbook standard position (12-month mutual cap with specified carve-outs and mutual consequential-damages waiver), eliminates the vendor's asymmetric unlimited exposure for the company on non-payment, and restores balance between parties.",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 4,
+      "risk": "CRITICAL",
+      "topic": "Intellectual Property Ownership",
+      "company_section": "4. INTELLECTUAL PROPERTY",
+      "company_text": "All deliverables, work product, and custom developments created by Vendor shall be the sole and exclusive property of the Company, including all intellectual property rights therein.",
+      "vendor_section": "4. INTELLECTUAL PROPERTY",
+      "vendor_text": "Vendor retains all intellectual property rights in all work product, tools, methodologies, and deliverables. Client receives a non-exclusive, non-transferable license for internal use only. Vendor may reuse all methods, frameworks, and non-confidential outputs freely with other clients.",
+      "conflict_explanation": "Direct ownership contradiction: the company's terms require full assignment of all deliverables and IP to the company, while the vendor's terms retain all IP for the vendor and grant the company only a limited internal-use license, undermining the company's ownership of custom work product.",
+      "favor": "Company",
+      "resolution": "Company owns all custom/bespoke deliverables and associated IP; vendor retains ownership only of pre-existing tools, generic methodologies, and reusable non-client-specific components, with a perpetual royalty-free license to the company for anything embedded in deliverables (per playbook fallback allowing vendor to keep generic know-how).",
+      "playbook_ref": "pb_ip_ownership",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": true,
+       "cites_playbook_correctly": true,
+       "verdict": "flag",
+       "model_verdict": "flag",
+       "reason": "Resolution aligns with playbook and creates balanced compromise, but 'custom/bespoke' and 'non-client-specific' lack bright-line definitions that could spawn disputes during delivery.",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 5,
+      "risk": "HIGH",
+      "topic": "Confidentiality Duration & Disclosure",
+      "company_section": "5. CONFIDENTIALITY",
+      "company_text": "Vendor agrees to maintain strict confidentiality of all Company information for five (5) years following termination. Vendor shall not disclose Company information to any third party without prior written consent.",
+      "vendor_section": "5. CONFIDENTIALITY",
+      "vendor_text": "Client information shall be kept confidential for two (2) years following termination. Vendor may disclose information to affiliates and subcontractors without prior written consent provided they are subject to confidentiality obligations.",
+      "conflict_explanation": "Survival periods conflict (5 years vs 2 years) and the vendor's clause permits disclosure to affiliates/subcontractors without the company's prior written consent, contrary to the company's blanket non-disclosure requirement.",
+      "favor": "Company",
+      "resolution": "Set survival at 5 years post-termination (or minimum 3 years per fallback) with indefinite survival for trade secrets/personal data; permit disclosure to affiliates/subcontractors only under written confidentiality obligations at least as protective as this Agreement and with notice to the company.",
+      "playbook_ref": "pb_confidentiality",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": false,
+       "cites_playbook_correctly": true,
+       "verdict": "pass",
+       "model_verdict": "pass",
+       "reason": "Resolution balances both parties' interests by accepting the company's 5-year baseline with a 3-year fallback, preserves indefinite protection for trade secrets/personal data, and conditions vendor disclosure on equivalent confidentiality obligations plus notice\u2014all aligned with playbook standards.",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 6,
+      "risk": "CRITICAL",
+      "topic": "Governing Law & Dispute Resolution",
+      "company_section": "6. GOVERNING LAW",
+      "company_text": "This Agreement shall be governed by the laws of the State of Delaware. Disputes shall be resolved through binding arbitration in Wilmington, Delaware under AAA rules.",
+      "vendor_section": "6. GOVERNING LAW",
+      "vendor_text": "This Agreement shall be governed by the laws of the State of California. Disputes shall be resolved through litigation in San Francisco County Superior Court. Each party waives the right to jury trial.",
+      "conflict_explanation": "Governing law (Delaware vs California) and dispute mechanism (binding AAA arbitration in Wilmington vs litigation in San Francisco courts) directly conflict, creating uncertainty over applicable law, venue, and process.",
+      "favor": "Company",
+      "resolution": "Resolution withheld pending counsel review (automated check found the suggested language unsound).",
+      "playbook_ref": "pb_governing_law",
+      "resolution_review": {
+       "sound": false,
+       "one_sided": false,
+       "ambiguous": true,
+       "cites_playbook_correctly": false,
+       "verdict": "hide",
+       "model_verdict": "hide",
+       "reason": "The resolution is internally contradictory\u2014it proposes both binding arbitration as the primary mechanism and litigation as a fallback, which creates legal incoherence about the dispute process, and the playbook calls for New York law/venue as standard, not Delaware arbitration.",
+       "citation_valid": true
+      },
+      "resolution_original": "Adopt Delaware law with arbitration under AAA commercial rules in Wilmington (or a neutral venue where neither party is headquartered) as the company's standard; if vendor insists on litigation, fall back to executive escalation for 30 days followed by litigation in Delaware courts with jury trial waiver."
+     },
+     {
+      "id": 7,
+      "risk": "CRITICAL",
+      "topic": "Indemnification Scope",
+      "company_section": "7. INDEMNIFICATION",
+      "company_text": "Vendor shall indemnify, defend, and hold harmless Company from any third-party claims arising from Vendor's breach or negligence. Liability is mutual and proportional to fault.",
+      "vendor_section": "7. INDEMNIFICATION",
+      "vendor_text": "Indemnification applies only for direct damages from gross negligence or willful misconduct. Company agrees to indemnify Vendor for all legal defense costs regardless of claim outcome.",
+      "conflict_explanation": "The vendor's clause narrows its indemnification obligation to only gross negligence/willful misconduct (excluding ordinary breach/negligence covered by the company's terms) while simultaneously imposing a one-sided obligation on the company to cover the vendor's legal defense costs regardless of outcome, which is absent from and contrary to the company's mutual, fault-proportional structure.",
+      "favor": "Company",
+      "resolution": "Restore vendor indemnification for third-party claims arising from vendor's breach, negligence, or IP infringement, with company retaining settlement consent rights; strike the blanket obligation for the company to fund the vendor's legal defense costs irrespective of outcome, replacing it with a fault-proportional mutual indemnity.",
+      "playbook_ref": "pb_indemnification",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": false,
+       "cites_playbook_correctly": false,
+       "verdict": "flag",
+       "model_verdict": "flag",
+       "reason": "Resolution correctly restores mutual fault-proportional indemnity and removes the vendor's one-sided defense-cost clause, but adds IP infringement coverage that exceeds the playbook's standard position and doesn't align with the cited fallbacks.",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 8,
+      "risk": "HIGH",
+      "topic": "Non-Compete / Exclusivity",
+      "company_section": "8. NON-COMPETE",
+      "company_text": "During the term and for one (1) year following termination, Vendor shall not provide substantially similar services to any direct competitor of Company.",
+      "vendor_section": "8. EXCLUSIVITY",
+      "vendor_text": "Vendor may freely provide identical or substantially similar services to any client including direct competitors of Company. No non-compete or exclusivity restrictions apply to Vendor under this Agreement.",
+      "conflict_explanation": "Direct contradiction: the company's terms impose a one-year post-termination non-compete on the vendor, while the vendor's terms explicitly disclaim any non-compete or exclusivity restriction whatsoever.",
+      "favor": "Company",
+      "resolution": "Negotiate a narrowed, time-boxed restriction (e.g., vendor may not use company's confidential information/deliverables to service named direct competitors for 12 months) rather than a full service non-compete, consistent with playbook's general no-exclusivity stance, but ensure confidentiality and IP protections are not undermined by unrestricted competitor engagements.",
+      "playbook_ref": "pb_exclusivity",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": true,
+       "cites_playbook_correctly": false,
+       "verdict": "flag",
+       "model_verdict": "flag",
+       "reason": "Resolution is sound and balanced but ambiguous on what constitutes 'named direct competitors' and 'use of confidential information,' and cites exclusivity playbook for a non-compete topic, conflating two distinct protections.",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 9,
+      "risk": "HIGH",
+      "topic": "Auto-Renewal",
+      "company_section": "9. AUTO-RENEWAL",
+      "company_text": "This Agreement shall NOT automatically renew. Renewal requires a written amendment signed by both parties no later than 30 days before expiration.",
+      "vendor_section": "9. AUTO-RENEWAL",
+      "vendor_text": "This Agreement automatically renews for successive one-year terms unless written notice of non-renewal is provided at least 90 days before expiration. Price increases of up to 15% apply automatically on each renewal.",
+      "conflict_explanation": "Directly conflicting renewal mechanisms: the company requires affirmative written renewal, while the vendor imposes automatic renewal with a 90-day opt-out window and unilateral price increases of up to 15%, which the company's terms do not permit at all.",
+      "favor": "Company",
+      "resolution": "Require renewal only by signed written amendment (company's standard); if auto-renewal is accepted as a fallback, limit to 12-month renewal terms with a 60-day non-renewal window, vendor reminder notice 90 days before expiry, and cap any price increase at CPI or 3%, striking the 15% automatic increase.",
+      "playbook_ref": "pb_auto_renewal",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": false,
+       "cites_playbook_correctly": true,
+       "verdict": "pass",
+       "model_verdict": "pass",
+       "reason": "The resolution advances the company's preference (no auto-renewal) as primary, then offers a balanced fallback (auto-renewal with 12-month terms, 60-day opt-out, vendor notice, and CPI/3% price cap) that aligns with playbook standards and replaces the vendor's one-sided 15% escalation.",
+       "citation_valid": true
+      }
+     },
+     {
+      "id": 10,
+      "risk": "MEDIUM",
+      "topic": "Audit Rights",
+      "company_section": "10. AUDIT RIGHTS",
+      "company_text": "Company reserves the right to audit Vendor records related to this Agreement upon 5 business days written notice, no more than once per calendar year.",
+      "vendor_section": "10. AUDIT RIGHTS",
+      "vendor_text": "Client has no right to audit Vendor internal records, pricing models, systems, or financial information under any circumstances during or after the term.",
+      "conflict_explanation": "The vendor's terms categorically eliminate the company's audit rights, directly contradicting the company's contractual right to audit vendor records related to the agreement on reasonable notice.",
+      "favor": "Company",
+      "resolution": "Preserve an annual audit right on 30 days' notice (or 5 business days as in company's terms) limited to records relevant to this Agreement, with vendor permitted to satisfy this via delivery of a current SOC 2 report in lieu of a full audit where available, plus incident-triggered audit rights.",
+      "playbook_ref": "pb_audit_rights",
+      "resolution_review": {
+       "sound": true,
+       "one_sided": false,
+       "ambiguous": false,
+       "cites_playbook_correctly": true,
+       "verdict": "pass",
+       "model_verdict": "pass",
+       "reason": "The resolution balances company audit rights with vendor accommodation (SOC 2 alternative, incident triggers), aligns with playbook standard, and compromises between company's 5-day and vendor's zero-audit positions.",
+       "citation_valid": true
+      }
+     }
+    ],
+    "recommendation": "Review all CRITICAL and HIGH conflicts with legal counsel before signing. MEDIUM conflicts may be negotiated. LOW conflicts are informational.",
+    "route": "agentic",
+    "governing_law": null,
+    "route_reason": "shared CRITICAL-tier topics (governing_law, indemnification, ip_ownership, liability_cap, termination_rights); severity tiering dominates",
+    "resolution_review_summary": {
+     "pass": 5,
+     "flag": 4,
+     "hide": 1
+    },
+    "trace": {
+     "request_id": "01fe6671b8a6",
+     "llm_calls": 14,
+     "tool_calls": 13,
+     "input_tokens": 43232,
+     "output_tokens": 9207,
+     "cache_write_tokens": 2324,
+     "cache_read_tokens": 6972,
+     "cost_usd": 0.25383,
+     "llm_latency_s": 91.26,
+     "wall_time_s": 91.74,
+     "parse_failures": 0
+    }
+   }
+  }
+ ]
+}

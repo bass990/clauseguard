@@ -1,104 +1,96 @@
 # ClauseGuard Eval Harness
 
-Status: **Day 8 — runnable end-to-end**. 30 scenarios committed across 5
-tiers. Runners (FULL + STRIPPED) implemented with mocked tools. 5 scorer
-families implemented with deterministic tests. Orchestrator wires everything
-together; `make eval-small` and `make eval` are executable. Day 9 is the
-first paid run + completion-pack thread-through.
+Status: **v2, five branches, runnable end-to-end.** 30 scenarios across 5
+tiers; the production prompt, tool schemas, playbook retrieval and schema
+validator are imported, not mirrored. `make eval-small` (~$1) and
+`make eval` (~$15-25) are the two entry points; `make regression` gates CI.
 
 ## What this measures
 
-The headline question: *does ClauseGuard's two-tool agentic architecture
-(extract → reason → redline) detect contract conflicts better than a
-single-prompt baseline that sees both contracts at once?*
+The June 2026 question was *does the two-tool agentic loop beat a
+single-prompt baseline?* The answer was "equivalent in aggregate, opposite
+per tier": the loop won on severity tiering (+10.7pp F1) and lost on
+ambiguous clauses (-13.0pp). Two things were built from that finding and
+this harness measures both:
 
-The eval runs an A/B between:
+1. **Conditional routing** (`backend/router.py`): a rule-plus-cheap-model
+   pre-classifier sends "which tier?" contract pairs to the agentic loop
+   and "is this even a conflict?" pairs to the single prompt.
+2. **Playbook retrieval** (`backend/playbook.py`): a third tool the agent
+   consults per topic before assigning a tier or drafting resolution
+   language, and inline playbook context for the single prompt.
 
-- **FULL branch** — production agent loop (mocked PDF extraction).
-- **STRIPPED branch** — one LLM call with both clause arrays inline.
+So the harness now runs five branches on every scenario:
 
-…against 30 gold scenarios across 5 tiers:
+| Branch | What it is |
+|---|---|
+| `full` | the two-tool agentic loop as evaluated in June 2026 (no playbook) |
+| `stripped` | one call, clauses inline, no tools (June 2026 baseline) |
+| `full_rag` | the agentic loop with `lookup_playbook` (production "agentic") |
+| `stripped_rag` | one call with playbook entries pre-retrieved inline (production "single") |
+| `routed` | the router picks `full_rag` or `stripped_rag` per contract pair |
+
+...against 30 gold scenarios across 5 tiers:
 
 | Tier | Count | Purpose |
 |---|---|---|
-| `clear_conflict` | 7 | Direct contradiction — agent should flag with high precision |
-| `clear_no_conflict` | 6 | Different wording, same substance — agent should NOT flag |
+| `clear_conflict` | 7 | Direct contradiction: flag with high precision |
+| `clear_no_conflict` | 6 | Different wording, same substance: do NOT flag |
 | `ambiguous` | 6 | Defensible to flag or not |
-| `severity_tiering` | 5 | Conflict is obvious; right risk tier is the test |
-| `adversarial` | 6 | Prompt injection in clause text, very long contracts, missing-context refs |
+| `severity_tiering` | 5 | Conflict is obvious; the right risk tier is the test |
+| `adversarial` | 6 | Prompt injection in clause text and headers, negation traps, missing-context refs |
 
-…and scores five metric families: precision/recall/F1 on conflict detection,
+...and scores five metric families: precision/recall/F1 on conflict detection,
 risk-tier accuracy (strict + lenient), favor accuracy (strict + lenient),
 false-positive rate on no-conflict scenarios, and total-count calibration.
 
+The report also carries, per run: run-to-run variance (mean per-scenario F1
+range across reps, so a lift smaller than the band is read as noise), the
+routing decisions per tier, playbook lookups per run, and the number of
+schema-repair rounds the production validator forced.
+
 ## What it does NOT measure
 
-- PDF parsing — scenarios pre-supply clause arrays, bypassing PyMuPDF.
-- Resolution-language quality — would need an LLM-as-judge harness with
-  attorney calibration; deferred.
-- Jurisdiction-specific case-law reasoning — the system is jurisdiction-blind
-  by design.
-- Production hardening (rate limits, retries, queueing) — orthogonal.
+- PDF parsing: scenarios pre-supply clause arrays, bypassing PyMuPDF and OCR.
+  `tests/test_backend.py` covers extraction on real PDFs.
+- Resolution-language quality against attorney labels. The resolution judge
+  is calibrated separately against 12 hand-labelled cases
+  (`make judge-calibrate`, results in `reports/judge_calibration.json`);
+  the labels are the author's, not a lawyer's.
+- Jurisdiction-specific reasoning: the governing-law tag is context, not doctrine.
 
-See `RUBRIC.md` for what counts as a conflict and the scoring rules. See
-`../phase2/14_clauseguard_eval_scope_spec.md` for the full design rationale.
+See `RUBRIC.md` for what counts as a conflict and the scoring rules.
 
 ## Layout
 
 ```
 eval/
-├── README.md           # this file
-├── RUBRIC.md           # committed Day 1, BEFORE scenarios
-├── schemas.py          # Pydantic models — the contract between scenarios,
-│                       # runners, and scorers
-├── instrumentation.py  # CallTrace + cost arithmetic
-├── rubric_audit.py     # programmatic encoding of RUBRIC.md §1-4
-├── prompts.py          # mirrored production prompt + STRIPPED prompt
-├── runners.py          # FULL + STRIPPED pipeline executors + CLI
-├── scorers.py          # 5 scoring functions + aggregation + A/B lift
-├── orchestrator.py     # Cartesian product runner + report renderer
-├── scenarios/          # one *.json per scenario; lands Days 2-5
-└── reports/            # one run_YYYYMMDD_HHMMSS.md per eval run
+├── README.md               # this file
+├── RUBRIC.md               # committed before scenarios; rules quoted from the production prompt
+├── schemas.py              # Scenario / ScenarioResult / BranchMetrics / ABLiftResult (5 branches)
+├── prompts.py              # imports config.SYSTEM_PROMPT; stripped baseline prompt
+├── runners.py              # the five branch runners + CLI
+├── scorers.py              # deterministic scorers, macro-averaged per tier
+├── rubric_audit.py         # topic canonicalisation shared with backend.router
+├── instrumentation.py      # cost + latency traces
+├── orchestrator.py         # run, render, save
+├── regression_check.py     # CI gate against baseline.json
+├── judge_calibration.json  # 12 labelled resolutions
+├── judge_calibrate.py      # measures the judge against the labels
+├── baseline.json           # frozen F1 floors from the last full run
+├── scenarios/              # 30 gold scenarios
+└── reports/                # run_*.md + latest_run.json
 ```
 
-## Running the eval
+## Running
 
+```bash
+make eval-small                                   # 5 scenarios x 5 branches x 1 rep
+make eval                                         # 30 x 5 x 3
+python -m eval.runners --mode full --branches routed,stripped --reps 2
+make regression                                   # compare latest_run.json to baseline.json
+make baseline                                     # freeze the latest run as the new floor
 ```
-make eval-dry     # status message only, no API calls
-make eval-small   # 5 scenarios, 2 branches, 1 rep    ≈ $0.50-$1
-make eval         # 30 scenarios, 2 branches, 3 reps  ≈ $5-15
-```
 
-Both `eval-small` and `eval` need `ANTHROPIC_API_KEY` in env. The CLI
-pauses 3 seconds before spending any credits so you can Ctrl+C to abort.
-Reports land in `eval/reports/run_YYYYMMDD_HHMMSS.md` with a sibling
-`latest_run.json` snapshot for re-rendering.
-
-The default `eval-small` scenario set is `clear_conflict_001`,
-`clear_no_conflict_001`, `ambiguous_001`, `severity_tiering_003`, and
-`adversarial_001` — spans all 5 tiers and includes the prompt-injection
-scenario as the highest-value single test.
-
-## Honest disclosures
-
-1. **The eval bypasses PDF parsing.** Scenarios pre-supply clause arrays.
-   Testing PDF robustness requires a separate harness.
-2. **Synthetic mini-contracts, not real MSAs.** Each scenario has ~5-15
-   clauses, not 80. Generalization to real legal documents is a known gap.
-3. **The rubric encodes the production system prompt.** If `config.py`
-   `SYSTEM_PROMPT` changes, the rubric must be re-verified — a
-   drift-detection test in `tests/test_runners.py` will catch silent skew.
-4. **Conflict matching is by topic + section overlap.** Imperfect — the
-   agent might describe the same conflict with different wording or cite a
-   parent section. Day 8's first run includes manual spot-checks.
-5. **No LLM-as-judge.** Scorers are deterministic, by deliberate choice —
-   LLM-as-judge introduces same-model bias when judge and system share a
-   model family. Trades human-rater-agreement upside for zero same-model bias.
-6. **Cost estimates assume Sonnet 4.6 pricing.** Verify before each full run.
-
-## CI strategy
-
-- `ci.yml` runs ruff + pytest on every push/PR. Zero LLM calls. <1 min, free.
-- `eval.yml` is manual-trigger only (`workflow_dispatch`). Needs the
-  `ANTHROPIC_API_KEY` GitHub secret. Uploads the markdown report as an
-  artifact. Cost: $5-15.
+CI runs `eval-smoke` (routed + stripped on the 5-scenario set) on pushes to
+`main` when the `ANTHROPIC_API_KEY` secret is set, then the regression gate.

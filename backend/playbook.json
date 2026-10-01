@@ -1,0 +1,181 @@
+{
+  "version": "1.0",
+  "note": "Illustrative negotiation playbook for a mid-market SaaS buyer. Positions are generic commercial norms, not legal advice; a real deployment loads the company's own playbook here.",
+  "entries": [
+    {"id": "pb_liability_cap", "topic": "liability_cap", "risk_tier": "CRITICAL",
+     "definition": "A limitation of liability clause caps the damages one party can recover from the other, usually to fees paid over a trailing period, and carves out categories such as indemnity, confidentiality breach and gross negligence.",
+     "standard_position": "Mutual cap at 12 months of fees paid; uncapped for indemnification obligations, breach of confidentiality, gross negligence and wilful misconduct; consequential damages waiver mutual.",
+     "fallbacks": ["Cap at the greater of 12 months of fees or a fixed floor amount", "Super-cap of 2x annual fees for data-breach claims", "Accept vendor cap if it is at least 12 months of fees and carve-outs survive"],
+     "precedents": [
+       {"id": "pb_liability_cap-p1", "text": "Vendor proposed a $5,000 aggregate cap against a $240,000 annual contract. Rejected; settled at 12 months of fees with data-breach super-cap of 24 months."},
+       {"id": "pb_liability_cap-p2", "text": "Vendor asked for a one-way cap (vendor capped, customer uncapped). Countered with mutual cap; accepted."}
+     ]},
+    {"id": "pb_indemnification", "topic": "indemnification", "risk_tier": "CRITICAL",
+     "definition": "An indemnity is a promise to cover the other party's losses from specified third-party claims, most often intellectual-property infringement, breach of law, and bodily injury or property damage.",
+     "standard_position": "Vendor indemnifies for third-party IP infringement claims, violation of law and gross negligence, with customer control of settlement consent; customer indemnity limited to misuse of the services.",
+     "fallbacks": ["Accept vendor's right to control defence if customer keeps settlement veto for admissions of fault", "Accept exclusion of claims arising from customer-provided data or modifications"],
+     "precedents": [
+       {"id": "pb_indemnification-p1", "text": "Vendor deleted the IP indemnity entirely. Restored with a remedy ladder (procure the right, modify, replace, refund)."},
+       {"id": "pb_indemnification-p2", "text": "Vendor required customer to indemnify for all claims related to use of the services. Narrowed to claims from customer data and breach of acceptable-use terms."}
+     ]},
+    {"id": "pb_ip_ownership", "topic": "ip_ownership", "risk_tier": "CRITICAL",
+     "definition": "Intellectual-property ownership clauses decide who owns deliverables, work product, customer data and any improvements the vendor makes during the engagement.",
+     "standard_position": "Customer owns deliverables and all customer data; vendor retains pre-existing IP and tools with a perpetual licence to customer for anything embedded in deliverables; no vendor rights in customer data beyond providing the service.",
+     "fallbacks": ["Vendor keeps generic know-how and reusable components not specific to customer", "Joint ownership of jointly developed improvements with mutual licence"],
+     "precedents": [
+       {"id": "pb_ip_ownership-p1", "text": "Vendor's terms kept all deliverables as vendor property with a term-limited licence. Rejected as a deal-breaker for bespoke work; vendor accepted customer ownership of custom deliverables."},
+       {"id": "pb_ip_ownership-p2", "text": "Vendor claimed rights to use customer data to train models. Struck; replaced with aggregated, de-identified usage statistics only."}
+     ]},
+    {"id": "pb_termination_rights", "topic": "termination_rights", "risk_tier": "CRITICAL",
+     "definition": "Termination clauses set who may end the agreement, on what notice, for convenience or for cause, and what cure period and transition assistance apply.",
+     "standard_position": "Either party may terminate for uncured material breach on 30 days' written notice; customer may terminate for convenience on 60 days' notice with pro-rata refund of prepaid fees; 90 days of transition assistance at then-current rates.",
+     "fallbacks": ["Convenience termination after an initial 12-month commitment", "Early-termination fee capped at 3 months of fees"],
+     "precedents": [
+       {"id": "pb_termination_rights-p1", "text": "Vendor allowed termination for convenience by vendor only, on 10 days' notice. Made mutual at 60 days with transition assistance."},
+       {"id": "pb_termination_rights-p2", "text": "Vendor removed the cure period for customer breach. Restored 30-day cure for non-payment and other breaches."}
+     ]},
+    {"id": "pb_governing_law", "topic": "governing_law", "risk_tier": "CRITICAL",
+     "definition": "Governing-law and venue clauses choose which jurisdiction's law interprets the contract and where disputes are heard.",
+     "standard_position": "Laws of the State of New York, exclusive venue in New York courts, waiver of jury trial; no foreign law for a US counterparty.",
+     "fallbacks": ["Delaware law with Delaware venue", "Neutral US jurisdiction where vendor is not incorporated if vendor insists on home state"],
+     "precedents": [
+       {"id": "pb_governing_law-p1", "text": "Vendor proposed the law of its home state (California) with venue in San Francisco. Settled on Delaware as neutral."},
+       {"id": "pb_governing_law-p2", "text": "Foreign vendor proposed English law and London courts. Rejected for a US-only deployment; accepted New York with English-language proceedings."}
+     ]},
+    {"id": "pb_arbitration", "topic": "arbitration", "risk_tier": "CRITICAL",
+     "definition": "Dispute-resolution clauses decide whether disputes go to court or binding arbitration, under which rules, and whether class actions are waived.",
+     "standard_position": "Escalation to executives for 30 days, then litigation in the agreed venue; no mandatory arbitration; injunctive relief available for IP and confidentiality breaches.",
+     "fallbacks": ["Arbitration under AAA commercial rules with a single arbitrator for claims under $250,000", "Mediation before litigation"],
+     "precedents": [
+       {"id": "pb_arbitration-p1", "text": "Vendor required binding arbitration in its home city with a class-action waiver. Countered with executive escalation then courts; vendor accepted mediation-first."}
+     ]},
+    {"id": "pb_payment_terms", "topic": "payment_terms", "risk_tier": "HIGH",
+     "definition": "Payment terms fix invoice timing, due dates, late fees, disputed-invoice handling and currency.",
+     "standard_position": "Net 45 from receipt of a correct invoice; disputed amounts withheld in good faith without penalty; late interest capped at 1% per month; annual increases capped at CPI or 3%.",
+     "fallbacks": ["Net 30 in exchange for a 2% early-payment discount", "Late interest at 1.5% per month after a 15-day grace period"],
+     "precedents": [
+       {"id": "pb_payment_terms-p1", "text": "Vendor proposed net 15 with 2% monthly late fees and suspension rights after 5 days. Settled at net 30, 1% late fee, 30-day suspension notice."},
+       {"id": "pb_payment_terms-p2", "text": "Vendor proposed annual price increases at vendor's discretion. Capped at the greater of CPI or 3%."}
+     ]},
+    {"id": "pb_penalties", "topic": "penalties", "risk_tier": "HIGH",
+     "definition": "Penalty and service-credit clauses set the financial consequences of missed service levels or late delivery.",
+     "standard_position": "Service credits of 5-25% of monthly fees by severity of SLA miss, credits are not the exclusive remedy for chronic failure; no penalties on customer beyond late-payment interest.",
+     "fallbacks": ["Credits as exclusive remedy below three consecutive misses, termination right above", "Credit cap at 50% of monthly fees"],
+     "precedents": [
+       {"id": "pb_penalties-p1", "text": "Vendor set credits as the sole and exclusive remedy for any SLA failure. Added a termination right after three misses in six months."}
+     ]},
+    {"id": "pb_breach_consequences", "topic": "breach_consequences", "risk_tier": "HIGH",
+     "definition": "Breach clauses define what counts as material breach, the cure period, and the remedies available beyond termination.",
+     "standard_position": "Material breach defined with examples; 30-day cure period; remedies cumulative; suspension only for non-payment after notice or security emergencies.",
+     "fallbacks": ["10-day cure for non-payment, 30 days for other breaches", "Immediate suspension for verified security threats with notice within 24 hours"],
+     "precedents": [
+       {"id": "pb_breach_consequences-p1", "text": "Vendor could suspend services immediately for any alleged breach. Narrowed to non-payment after notice and genuine security emergencies."}
+     ]},
+    {"id": "pb_confidentiality", "topic": "confidentiality", "risk_tier": "HIGH",
+     "definition": "Confidentiality clauses define protected information, permitted disclosures, the standard of care, and how long obligations survive.",
+     "standard_position": "Mutual; obligations survive 5 years after termination, indefinitely for trade secrets and personal data; disclosure permitted to advisers under equivalent obligations and when compelled by law with notice.",
+     "fallbacks": ["3-year survival for general confidential information with indefinite survival for trade secrets", "Residual-knowledge clause limited to unaided memory and excluding customer data"],
+     "precedents": [
+       {"id": "pb_confidentiality-p1", "text": "Vendor's survival period was 1 year. Extended to 3 years plus indefinite for trade secrets and personal data."},
+       {"id": "pb_confidentiality-p2", "text": "Vendor included a broad residuals clause. Accepted only with an exclusion for customer data and source code."}
+     ]},
+    {"id": "pb_exclusivity", "topic": "exclusivity", "risk_tier": "HIGH",
+     "definition": "Exclusivity and non-compete clauses restrict one party from buying from, selling to, or working with competitors.",
+     "standard_position": "No exclusivity; no restriction on customer using competing services; no non-solicit of customer employees beyond a mutual 12-month, named-employee restriction.",
+     "fallbacks": ["Preferred-vendor status without exclusivity", "Right of first refusal on additional scope with a 15-day response window"],
+     "precedents": [
+       {"id": "pb_exclusivity-p1", "text": "Vendor asked for exclusivity in the customer's product category for 3 years. Rejected; offered a non-binding preferred-vendor letter."}
+     ]},
+    {"id": "pb_auto_renewal", "topic": "auto_renewal", "risk_tier": "HIGH",
+     "definition": "Auto-renewal clauses extend the term automatically unless a party gives notice of non-renewal within a window before expiry.",
+     "standard_position": "Renewal only by written agreement; if auto-renewal is accepted, 12-month terms with a 60-day non-renewal window and vendor reminder notice 90 days before expiry.",
+     "fallbacks": ["Auto-renewal with a 30-day window and price cap on the renewal term", "Month-to-month after the initial term"],
+     "precedents": [
+       {"id": "pb_auto_renewal-p1", "text": "Vendor's terms auto-renewed for 3-year periods with a 180-day notice window. Reduced to 12-month renewals, 60-day window, reminder notice required."}
+     ]},
+    {"id": "pb_warranty", "topic": "warranty", "risk_tier": "HIGH",
+     "definition": "Warranties are promises about the quality of services or deliverables, their conformance to documentation, and non-infringement; disclaimers limit implied warranties.",
+     "standard_position": "Services perform materially per documentation; deliverables free of malicious code; professional and workmanlike performance; disclaimer of implied warranties accepted only if the express warranties above remain.",
+     "fallbacks": ["90-day warranty period on deliverables with re-performance as the remedy", "Accept 'as is' only for beta features clearly labelled as such"],
+     "precedents": [
+       {"id": "pb_warranty-p1", "text": "Vendor disclaimed all warranties including conformance to documentation. Restored the documentation warranty with re-performance or refund as remedy."}
+     ]},
+    {"id": "pb_notice_periods", "topic": "notice_periods", "risk_tier": "MEDIUM",
+     "definition": "Notice clauses fix how and when formal notices are given and how much advance notice changes, terminations or renewals require.",
+     "standard_position": "Written notice by email with confirmation or courier; 30 days' notice for scope changes; notices effective on receipt.",
+     "fallbacks": ["Accept 35-45 days for change notices", "Email-only notice to named contacts with read receipt"],
+     "precedents": [
+       {"id": "pb_notice_periods-p1", "text": "Vendor required 35 days' notice for changes against our 30. Accepted; the 5-day gap had no operational impact."}
+     ]},
+    {"id": "pb_amendments", "topic": "amendments", "risk_tier": "MEDIUM",
+     "definition": "Amendment clauses set how the contract may be changed, typically only in a signed writing, and whether online terms can be updated unilaterally.",
+     "standard_position": "Amendments only by written agreement signed by both parties; no unilateral updates to incorporated online terms that reduce customer rights.",
+     "fallbacks": ["Vendor may update online policies with 30 days' notice and customer termination right if materially adverse"],
+     "precedents": [
+       {"id": "pb_amendments-p1", "text": "Vendor's terms allowed updates to policies at any time by posting. Added notice plus termination right for adverse changes."}
+     ]},
+    {"id": "pb_assignment", "topic": "assignment", "risk_tier": "MEDIUM",
+     "definition": "Assignment clauses control whether a party may transfer the contract to another entity, including in a merger or sale.",
+     "standard_position": "No assignment without consent, not unreasonably withheld, except to an affiliate or successor in a merger or asset sale with notice.",
+     "fallbacks": ["Consent not required for assignment to a non-competitor successor", "Assignment permitted with 30 days' notice and a termination right for the other party"],
+     "precedents": [
+       {"id": "pb_assignment-p1", "text": "Vendor could assign freely while customer needed consent. Made mutual with the merger carve-out."}
+     ]},
+    {"id": "pb_subcontracting", "topic": "subcontracting", "risk_tier": "MEDIUM",
+     "definition": "Subcontracting clauses govern whether the vendor may delegate performance and who is responsible for subcontractor acts.",
+     "standard_position": "Subcontracting permitted with notice; vendor remains fully liable for subcontractors; subcontractors bound by equivalent confidentiality and security terms; customer may object to subprocessors of personal data.",
+     "fallbacks": ["Pre-approved subcontractor list in an exhibit, additions on 30 days' notice"],
+     "precedents": [
+       {"id": "pb_subcontracting-p1", "text": "Vendor's terms disclaimed liability for subcontractor performance. Restored full vendor responsibility."}
+     ]},
+    {"id": "pb_insurance", "topic": "insurance", "risk_tier": "MEDIUM",
+     "definition": "Insurance clauses require minimum coverage types and limits (general liability, cyber, errors and omissions) and proof of coverage.",
+     "standard_position": "Vendor maintains general liability $2M per occurrence, cyber and E&O $5M aggregate, workers' compensation as required by law; certificates on request; subcontractors covered to the same level.",
+     "fallbacks": ["Cyber/E&O $2M for engagements under $500K annual value"],
+     "precedents": [
+       {"id": "pb_insurance-p1", "text": "Vendor offered $1M general liability and no cyber cover. Settled at $2M GL and $3M cyber given data access."}
+     ]},
+    {"id": "pb_force_majeure", "topic": "force_majeure", "risk_tier": "MEDIUM",
+     "definition": "Force majeure clauses excuse performance during events beyond a party's reasonable control and set notice, mitigation and termination rights for prolonged events.",
+     "standard_position": "Mutual; excludes payment obligations and events the affected party could have mitigated (including ordinary labour disputes and supplier failures); termination right after 60 days of continuous excuse.",
+     "fallbacks": ["90-day termination trigger", "Pandemic and cyber-attack listed expressly with a business-continuity obligation"],
+     "precedents": [
+       {"id": "pb_force_majeure-p1", "text": "Vendor's clause excused vendor only and included 'supplier failure' broadly. Made mutual, narrowed supplier failure to events beyond the supplier's control."}
+     ]},
+    {"id": "pb_ambiguous_clause", "topic": "ambiguous_clause", "risk_tier": "LOW",
+     "definition": "A clause open to more than one reasonable reading, where the difference between the two contracts is about wording rather than obligation.",
+     "standard_position": "Flag as LOW with the two readings stated; request clarifying language rather than a substantive change.",
+     "fallbacks": ["Add a definition to the definitions section", "Add an interpretive sentence rather than rewriting the clause"],
+     "precedents": [
+       {"id": "pb_ambiguous_clause-p1", "text": "'Business day' undefined in vendor terms. Added a definition; no substantive negotiation required."}
+     ]},
+    {"id": "pb_minor_inconsistency", "topic": "minor_inconsistency", "risk_tier": "LOW",
+     "definition": "A difference in numbering, cross-references, defined terms or formatting that does not change either party's obligations.",
+     "standard_position": "Note it, propose a conforming edit, do not negotiate.",
+     "fallbacks": ["Fix in the final conformed copy"],
+     "precedents": [
+       {"id": "pb_minor_inconsistency-p1", "text": "Vendor referred to 'Section 11' for insurance where the company's document used 'Section 10'. Conformed in the final copy."}
+     ]},
+    {"id": "pb_data_protection", "topic": "data_protection", "risk_tier": "HIGH",
+     "definition": "Data-protection clauses govern processing of personal data, security standards, breach notification and subprocessor rules, often through a data processing addendum.",
+     "standard_position": "DPA incorporated; vendor as processor; breach notification within 48 hours; SOC 2 Type II or ISO 27001; deletion or return of data within 30 days of termination.",
+     "fallbacks": ["72-hour breach notification", "Annual penetration test summary in lieu of full audit rights"],
+     "precedents": [
+       {"id": "pb_data_protection-p1", "text": "Vendor offered breach notification 'without undue delay' with no deadline. Fixed at 72 hours."}
+     ]},
+    {"id": "pb_service_levels", "topic": "service_levels", "risk_tier": "HIGH",
+     "definition": "Service-level clauses set uptime, response and resolution targets and how they are measured and reported.",
+     "standard_position": "99.9% monthly uptime measured across all regions; P1 response 1 hour, resolution target 4 hours; monthly SLA report; credits per the penalties entry.",
+     "fallbacks": ["99.5% uptime for non-production environments", "Exclusion of scheduled maintenance capped at 8 hours per month with 5 days' notice"],
+     "precedents": [
+       {"id": "pb_service_levels-p1", "text": "Vendor's uptime target was 99% with unlimited scheduled maintenance. Settled at 99.9% with a maintenance cap."}
+     ]},
+    {"id": "pb_audit_rights", "topic": "audit_rights", "risk_tier": "MEDIUM",
+     "definition": "Audit clauses let one party verify the other's compliance with security, financial or licence terms, subject to notice and frequency limits.",
+     "standard_position": "Annual audit right on 30 days' notice, plus after any security incident; third-party audit reports accepted in lieu where available.",
+     "fallbacks": ["Audit at customer's cost unless material non-compliance is found"],
+     "precedents": [
+       {"id": "pb_audit_rights-p1", "text": "Vendor refused any audit right. Accepted SOC 2 report delivery annually plus incident-triggered audits."}
+     ]}
+  ]
+}

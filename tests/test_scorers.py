@@ -359,8 +359,8 @@ def test_score_total_count_in_range_zero():
 # ---------------------------------------------------------------------------
 
 
-def test_per_scenario_errored_rep_scores_zero_quality():
-    """A rep with result.error should not crash aggregation."""
+def test_per_scenario_errored_rep_is_excluded_not_zeroed():
+    """Errored reps are excluded from the metrics and reported, never scored as 0."""
     scenario = _scen()
     errored = _result(scenario, predicted=None, error="boom")
     metrics = aggregate_branch_metrics(
@@ -369,8 +369,15 @@ def test_per_scenario_errored_rep_scores_zero_quality():
         branch="full",
         n_reps=1,
     )
-    assert metrics.avg_precision == 0.0
-    assert metrics.avg_recall == 0.0
+    assert metrics.n_scenarios == 0
+    assert metrics.n_errored_runs == 1
+    assert metrics.scenarios_dropped == [scenario.id]
+    assert metrics.avg_precision == 0.0  # nothing scored, not a real zero
+
+    # one errored rep next to one good rep: the good rep alone defines the score
+    good = _result(scenario, predicted=[], rep=1)
+    metrics2 = aggregate_branch_metrics(scenarios=[scenario], results=[errored, good], branch="full", n_reps=2)
+    assert metrics2.n_scenarios == 1 and metrics2.n_errored_runs == 1 and metrics2.scenarios_dropped == []
 
 
 # ---------------------------------------------------------------------------

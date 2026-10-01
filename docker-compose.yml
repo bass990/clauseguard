@@ -1,0 +1,12 @@
+services:
+  clauseguard:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env            # ANTHROPIC_API_KEY, optional CLAUSEGUARD_* flags
+    environment:
+      CLAUSEGUARD_DEMO: "${CLAUSEGUARD_DEMO:-0}"
+    volumes:
+      - ./logs:/app/logs   # append-only audit log survives restarts
+    restart: unless-stopped

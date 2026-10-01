@@ -69,3 +69,8 @@ desktop.ini
 # Build-history scratch files, keep locally, don't commit
 CHANGES_*.md
 CLAUDE_CONTEXT.md
+
+# Runtime audit log (hash-chained JSONL)
+logs/
+
+eval/reports/checkpoint.jsonl

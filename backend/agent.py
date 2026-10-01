@@ -1,118 +1,69 @@
+"""CLI entry point. Runs the same pipeline the API streams.
+
+    python -m backend.agent sample_contracts/company_standard_terms.pdf sample_contracts/vendor_proposed_terms.pdf
+    python -m backend.agent a.pdf b.pdf --law Delaware --route agentic --no-judge --json out.json
+"""
+from __future__ import annotations
+
+import argparse
 import json
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import anthropic
-from config import MODEL, MAX_TOKENS, ANTHROPIC_API_KEY, SYSTEM_PROMPT
-from backend.tools import TOOLS, TOOL_MAP
-
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+import config  # noqa: E402
+from backend.pipeline import analyze  # noqa: E402
 
 
-def run_agent(contract_a_path: str, contract_b_path: str, on_progress=None) -> dict:
-    """
-    Run the ClauseGuard agent on two contract PDFs.
-
-    Args:
-        contract_a_path: Path to company standard contract (PDF)
-        contract_b_path: Path to vendor contract (PDF)
-        on_progress: Optional callback(message: str) for streaming progress updates
-
-    Returns:
-        dict with keys: success, report, error (if failed)
-    """
-    def log(msg):
+def run_agent(contract_a_path: str, contract_b_path: str, on_progress=None, **kwargs) -> dict:
+    """Backwards-compatible wrapper: returns {success, report|error}."""
+    report = None
+    for ev in analyze(contract_a_path, contract_b_path, **kwargs):
         if on_progress:
-            on_progress(msg)
-        else:
-            print(f"[Agent] {msg}")
+            on_progress(ev)
+        elif ev["event"] in ("status", "route", "tool", "judge"):
+            print(f"[{ev['event']}] " + (ev.get("message") or ev.get("summary") or ev.get("reason") or json.dumps(ev)))
+        if ev["event"] == "complete":
+            report = ev["report"]
+        if ev["event"] == "error":
+            return {"success": False, "error": ev["message"], "report": None}
+        if ev["event"] == "trace" and not on_progress:
+            print(f"[trace] {ev['llm_calls']} calls, {ev['input_tokens']:,} in / {ev['output_tokens']:,} out, "
+                  f"cache read {ev['cache_read_tokens']:,}, ${ev['cost_usd']:.4f}, {ev['wall_time_s']}s")
+    return {"success": report is not None, "report": report}
 
-    messages = [
-        {
-            "role": "user",
-            "content": (
-                f"Analyze these two contracts for conflicts and generate a complete redline brief.\n\n"
-                f"Contract A (our company standard terms): {contract_a_path}\n"
-                f"Contract B (vendor/supplier terms): {contract_b_path}\n\n"
-                f"Follow your workflow: extract clauses from both, find conflicts, "
-                f"then generate the final redline brief."
-            )
-        }
-    ]
 
-    turn = 0
-    max_turns = 20  # safety limit
-    redline_report = None
+def main(argv=None) -> int:
+    p = argparse.ArgumentParser(description="ClauseGuard contract conflict analysis")
+    p.add_argument("contract_a")
+    p.add_argument("contract_b")
+    p.add_argument("--law", default=None, help="Expected governing law, e.g. 'New York'")
+    p.add_argument("--route", default=config.ROUTING_MODE, choices=["auto", "agentic", "single"])
+    p.add_argument("--no-judge", action="store_true")
+    p.add_argument("--no-playbook", action="store_true")
+    p.add_argument("--model", default=config.MODEL)
+    p.add_argument("--json", default=None, help="Write the report JSON to this path")
+    args = p.parse_args(argv)
 
-    while turn < max_turns:
-        turn += 1
-        log(f"Thinking... (turn {turn})")
-
-        response = client.messages.create(
-            model=MODEL,
-            max_tokens=MAX_TOKENS,
-            system=SYSTEM_PROMPT,
-            tools=TOOLS,
-            messages=messages
-        )
-
-        messages.append({"role": "assistant", "content": response.content})
-
-        if response.stop_reason == "end_turn":
-            final_text = ""
-            for block in response.content:
-                if hasattr(block, "text"):
-                    final_text = block.text
-            log("Analysis complete.")
-            return {
-                "success": True,
-                "final_message": final_text,
-                "report": redline_report.get("report") if redline_report else None
-            }
-
-        if response.stop_reason == "tool_use":
-            tool_results = []
-
-            for block in response.content:
-                if block.type != "tool_use":
-                    continue
-
-                tool_name = block.name
-                tool_input = block.input
-                log(f"Calling tool: {tool_name}()")
-
-                if tool_name not in TOOL_MAP:
-                    result = {"error": f"Unknown tool: {tool_name}"}
-                else:
-                    try:
-                        result = TOOL_MAP[tool_name](**tool_input)
-                        if tool_name == "generate_redline_brief" and result.get("success"):
-                            redline_report = result
-                            log("Redline brief generated.")
-                        if tool_name == "extract_clauses" and result.get("truncated"):
-                            log(result["truncation_warning"])
-                    except Exception as e:
-                        result = {"error": str(e)}
-                        log(f"Tool error: {e}")
-
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": block.id,
-                    "content": json.dumps(result)
-                })
-
-            messages.append({"role": "user", "content": tool_results})
-
-    return {"success": False, "error": "Max turns reached without completion.", "report": None}
+    result = run_agent(
+        args.contract_a, args.contract_b, governing_law=args.law, routing_mode=args.route,
+        judge=not args.no_judge, playbook=not args.no_playbook, model=args.model,
+    )
+    if args.json and result.get("report"):
+        with open(args.json, "w", encoding="utf-8") as f:
+            json.dump(result["report"], f, indent=2)
+        print(f"report written to {args.json}")
+    if not result["success"]:
+        print("ERROR:", result.get("error"))
+        return 1
+    r = result["report"]
+    print(f"\n=== {r['total_conflicts']} conflicts ({r['summary']}) via {r['route']} ===")
+    for c in r["conflicts"]:
+        rv = c.get("resolution_review", {}).get("verdict", "-")
+        print(f"[{c['risk']}] {c['topic']}  favor={c['favor']}  ref={c.get('playbook_ref')}  review={rv}")
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) != 3:
-        print("Usage: python agent.py <contract_a.pdf> <contract_b.pdf>")
-        sys.exit(1)
-
-    result = run_agent(sys.argv[1], sys.argv[2])
-    print("\n=== RESULT ===")
-    print(json.dumps(result, indent=2))
+    sys.exit(main())
